@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GetPCFixed — Coming Soon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --mint-bg:     #CFE9E2;
+      --mint-light:  #EDF7F3;
+      --mint-border: #A8D4C8;
+      --green-dark:  #173404;
+      --green-deep:  #27500A;
+      --green-main:  #3B6D11;
+      --green-label: #639922;
+      --white:       #ffffff;
+      --text-body:   #444441;
+      --text-muted:  #5F5E5A;
+      --text-hint:   #888780;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--mint-bg);
+      color: var(--text-body);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .banner {
+      background: var(--green-main);
+      color: #EAF3DE;
+      text-align: center;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .banner span { color: #97C459; }
+
+    nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--mint-border);
+      padding: 14px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .nav-lockup { display: flex; flex-direction: column; gap: 1px; }
+    .nav-name { font-size: 16px; font-weight: 500; color: var(--green-deep); line-height: 1; }
+    .nav-tagline { font-size: 10px; color: var(--green-label); line-height: 1; }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--mint-border);
+      border-radius: 20px;
+      padding: 52px 48px;
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-watermark {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.04;
+      pointer-events: none;
+    }
+    .card-content { position: relative; z-index: 1; }
+
+    .coming-badge {
+      display: inline-block;
+      background: #EAF3DE;
+      color: var(--green-main);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 5px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--mint-border);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      animation: pulse 2.5s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+
+    .card h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 34px;
+      font-weight: 400;
+      color: var(--green-dark);
+      line-height: 1.25;
+      margin-bottom: 10px;
+    }
+    .tagline { font-size: 16px; color: var(--green-main); font-weight: 500; margin-bottom: 14px; }
+    .card p { font-size: 14px; color: var(--text-muted); line-height: 1.8; margin-bottom: 32px; }
+
+    .waitlist-wrap { margin-bottom: 32px; }
+    .waitlist-label { font-size: 12px; color: var(--text-hint); margin-bottom: 10px; text-align: left; }
+    .waitlist-row { display: flex; gap: 8px; }
+    .waitlist-input {
+      flex: 1;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--mint-border);
+      background: var(--mint-light);
+      color: var(--green-dark);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .waitlist-input:focus { border-color: var(--green-main); background: var(--white); }
+    .waitlist-btn {
+      background: var(--green-main);
+      color: #EAF3DE;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 12px 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .waitlist-btn:hover { background: var(--green-deep); }
+    .waitlist-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .waitlist-success {
+      display: none;
+      background: var(--mint-light);
+      border: 1px solid var(--mint-border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 13px;
+      color: var(--green-deep);
+      font-weight: 500;
+      text-align: left;
+    }
+    .waitlist-note { font-size: 11px; color: var(--text-hint); margin-top: 8px; text-align: left; }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 8px 0 24px;
+    }
+    .divider-line { flex: 1; height: 1px; background: var(--mint-border); }
+    .divider-text { font-size: 11px; color: var(--text-hint); white-space: nowrap; }
+
+    .pw-label { font-size: 12px; font-weight: 500; color: var(--green-deep); text-align: left; margin-bottom: 8px; display: block; }
+    .pw-row { display: flex; gap: 8px; }
+    .pw-input {
+      flex: 1;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--mint-border);
+      background: var(--mint-light);
+      color: var(--green-dark);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .pw-input:focus { border-color: var(--green-main); background: var(--white); }
+    .pw-input.error { border-color: #E24B4A; background: #FCEBEB; }
+    .pw-btn {
+      background: var(--green-deep);
+      color: #EAF3DE;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 12px 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .pw-btn:hover { background: var(--green-dark); }
+    .pw-error { font-size: 12px; color: #A32D2D; margin-top: 8px; display: none; text-align: left; }
+    .pw-hint { font-size: 11px; color: var(--text-hint); margin-top: 8px; text-align: left; }
+
+    footer {
+      background: var(--white);
+      border-top: 1px solid var(--mint-border);
+      padding: 18px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { font-size: 12px; color: var(--text-hint); text-decoration: none; }
+    .footer-links a:hover { color: var(--green-main); }
+    .footer-copy { font-size: 12px; color: var(--text-hint); }
+
+    @media (max-width: 600px) {
+      nav { padding: 12px 20px; }
+      .card { padding: 36px 24px; }
+      .card h1 { font-size: 26px; }
+      .waitlist-row, .pw-row { flex-direction: column; }
+      footer { padding: 16px 20px; flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="banner">
+    GetPCFixed is currently in final testing &nbsp;&mdash;&nbsp; <span>launching soon for Windows 10 &amp; 11</span>
+  </div>
+
+  <nav>
+    <a href="#" class="nav-logo">
+      <svg width="36" height="36" viewBox="0 0 100 100" fill="none">
+        <path d="M50 6 L90 23 L90 53 C90 74 72 90 50 96 C28 90 10 74 10 53 L10 23 Z" fill="#EDF7F3" stroke="#3B6D11" stroke-width="5"/>
+        <path d="M26 57 L37 46 L45 55 L55 39 L63 48 L70 41 L78 51" stroke="#27500A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="78" cy="41" r="3.5" fill="#3B6D11"/>
+        <circle cx="78" cy="52" r="3.5" fill="#3B6D11"/>
+        <line x1="82" y1="41" x2="90" y2="41" stroke="#3B6D11" stroke-width="3" stroke-linecap="round"/>
+        <line x1="82" y1="52" x2="90" y2="52" stroke="#3B6D11" stroke-width="3" stroke-linecap="round"/>
+        <path d="M32 45 C32 37 38 32 46 35 L42 40 L44 45 L50 45 L52 40 L48 35 C56 31 63 37 63 45 C63 51 60 54 56 57 L50 68 L44 68 L38 57 C34 54 32 51 32 45Z" fill="#3B6D11"/>
+      </svg>
+      <div class="nav-lockup">
+        <span class="nav-name">GetPCFixed</span>
+        <span class="nav-tagline">Hey, we got you. Let's take a look together.</span>
+      </div>
+    </a>
+  </nav>
+
+  <main>
+    <div class="card">
+      <div class="card-watermark" aria-hidden="true">
+        <svg width="380" height="380" viewBox="0 0 100 100" fill="none">
+          <path d="M50 6 L90 23 L90 53 C90 74 72 90 50 96 C28 90 10 74 10 53 L10 23 Z" fill="#3B6D11"/>
+          <path d="M26 57 L37 46 L45 55 L55 39 L63 48 L70 41 L78 51" stroke="#EDF7F3" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <path d="M32 45 C32 37 38 32 46 35 L42 40 L44 45 L50 45 L52 40 L48 35 C56 31 63 37 63 45 C63 51 60 54 56 57 L50 68 L44 68 L38 57 C34 54 32 51 32 45Z" fill="#EDF7F3"/>
+        </svg>
+      </div>
+
+      <div class="card-content">
+        <div class="coming-badge">&#9679; In final testing</div>
+        <h1>Something good<br>is almost here.</h1>
+        <p class="tagline">Hey, we got you. Let's take a look together.</p>
+        <p>GetPCFixed is a free Windows PC repair tool that finds what's wrong, explains it in plain English, and fixes it — only with your permission. We're putting the finishing touches on it right now.</p>
+
+        <div class="waitlist-wrap">
+          <div class="waitlist-label">Be the first to know when we launch:</div>
+          <div id="waitlistForm">
+            <div class="waitlist-row">
+              <input type="email" class="waitlist-input" id="waitlistEmail" placeholder="your@email.com" />
+              <button class="waitlist-btn" id="waitlistBtn" onclick="joinWaitlist()">Notify me</button>
+            </div>
+            <div class="waitlist-note">No spam. One email when we launch. That's it.</div>
+          </div>
+          <div class="waitlist-success" id="waitlistSuccess">
+            You're on the list! We'll email you the moment GetPCFixed is ready.
+          </div>
+        </div>
+
+        <div class="divider">
+          <div class="divider-line"></div>
+          <div class="divider-text">Already have access?</div>
+          <div class="divider-line"></div>
+        </div>
+
+        <label class="pw-label" for="pwInput">Enter your access password</label>
+        <div class="pw-row">
+          <input type="password" class="pw-input" id="pwInput" placeholder="Password" onkeydown="if(event.key==='Enter') checkPassword()" />
+          <button class="pw-btn" onclick="checkPassword()">Enter</button>
+        </div>
+        <div class="pw-error" id="pwError">That password isn't right. Try again.</div>
+        <div class="pw-hint">Access is currently by invitation only.</div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="terms.html">Terms of Service</a>
+      <a href="license.html">License</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <span class="footer-copy">&copy; 2026 GetPCFixed. All rights reserved.</span>
+  </footer>
+
+  <script>
+    function joinWaitlist() {
+      var email = document.getElementById('waitlistEmail').value.trim();
+      if (!email || !email.includes('@') || !email.includes('.')) {
+        alert('Please enter a valid email address.');
+        return;
+      }
+      var btn = document.getElementById('waitlistBtn');
+      btn.textContent = 'Adding...';
+      btn.disabled = true;
+      fetch('https://formspree.io/f/xqegwara', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email: email, type: 'waitlist', subject: 'Waitlist signup — GetPCFixed' })
+      })
+      .then(function() {
+        document.getElementById('waitlistForm').style.display = 'none';
+        document.getElementById('waitlistSuccess').style.display = 'block';
+      })
+      .catch(function() {
+        document.getElementById('waitlistForm').style.display = 'none';
+        document.getElementById('waitlistSuccess').style.display = 'block';
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && document.activeElement.id === 'waitlistEmail') joinWaitlist();
+    });
+
+    function checkPassword() {
+      var input = document.getElementById('pwInput');
+      var error = document.getElementById('pwError');
+      if (input.value === 'Igotthis70!') {
+        window.location.href = 'home.html';
+      } else {
+        input.classList.add('error');
+        error.style.display = 'block';
+        input.value = '';
+        setTimeout(function() {
+          input.classList.remove('error');
+          error.style.display = 'none';
+        }, 3000);
+      }
+    }
+  </script>
+
+</body>
+</html>

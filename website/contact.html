@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us — GetPCFixed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --mint-bg:     #CFE9E2;
+      --mint-light:  #EDF7F3;
+      --mint-border: #A8D4C8;
+      --green-dark:  #173404;
+      --green-deep:  #27500A;
+      --green-main:  #3B6D11;
+      --green-label: #639922;
+      --white:       #ffffff;
+      --text-body:   #444441;
+      --text-muted:  #5F5E5A;
+      --text-hint:   #888780;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--mint-bg); color: var(--text-body); font-size: 16px; line-height: 1.7; }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--white); border-bottom: 1px solid var(--mint-border);
+      padding: 14px 40px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .nav-lockup { display: flex; flex-direction: column; gap: 1px; }
+    .nav-name { font-size: 16px; font-weight: 500; color: var(--green-deep); line-height: 1; }
+    .nav-tagline { font-size: 10px; color: var(--green-label); line-height: 1; }
+    .nav-cta {
+      background: var(--green-main); color: #EAF3DE;
+      font-size: 13px; font-weight: 500; padding: 9px 20px;
+      border-radius: 8px; text-decoration: none;
+    }
+
+    .page-hero {
+      background: var(--mint-light);
+      border-bottom: 1px solid var(--mint-border);
+      padding: 56px 40px 48px;
+    }
+    .page-hero-inner {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .page-label { font-size: 11px; color: var(--green-label); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; font-weight: 500; }
+    .page-title { font-family: 'DM Serif Display', serif; font-size: 38px; color: var(--green-dark); margin-bottom: 10px; }
+    .page-sub { font-size: 15px; color: var(--text-muted); max-width: 500px; }
+
+    .contact-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 56px 40px 80px;
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    /* LEFT PANEL */
+    .contact-info h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px; font-weight: 400;
+      color: var(--green-dark);
+      margin-bottom: 12px;
+    }
+
+    .contact-info p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 28px;
+    }
+
+    .info-card {
+      background: var(--white);
+      border: 1px solid var(--mint-border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .info-icon {
+      width: 36px; height: 36px;
+      background: var(--mint-light);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .info-label { font-size: 11px; color: var(--green-label); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; font-weight: 500; }
+    .info-value { font-size: 14px; color: var(--green-deep); font-weight: 500; }
+    .info-note { font-size: 12px; color: var(--text-hint); margin-top: 2px; }
+
+    .faq-section { margin-top: 32px; }
+    .faq-title { font-size: 13px; font-weight: 500; color: var(--green-dark); margin-bottom: 12px; }
+
+    .faq-item {
+      border-bottom: 1px solid var(--mint-border);
+      padding: 12px 0;
+      cursor: pointer;
+    }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q { font-size: 13px; font-weight: 500; color: var(--green-deep); display: flex; justify-content: space-between; align-items: center; }
+    .faq-a { font-size: 13px; color: var(--text-muted); line-height: 1.7; margin-top: 8px; display: none; }
+    .faq-item.open .faq-a { display: block; }
+    .faq-arrow { font-size: 11px; color: var(--text-hint); transition: transform 0.2s; }
+    .faq-item.open .faq-arrow { transform: rotate(180deg); }
+
+    /* FORM */
+    .contact-form-wrap {
+      background: var(--white);
+      border: 1px solid var(--mint-border);
+      border-radius: 16px;
+      padding: 36px;
+    }
+
+    .form-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px; font-weight: 400;
+      color: var(--green-dark);
+      margin-bottom: 6px;
+    }
+
+    .form-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; }
+
+    .form-group { margin-bottom: 20px; }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--green-deep);
+      margin-bottom: 6px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text-body);
+      background: var(--mint-light);
+      border: 1px solid var(--mint-border);
+      border-radius: 8px;
+      padding: 11px 14px;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      appearance: none;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--green-main);
+      background: var(--white);
+    }
+
+    .form-group textarea { resize: vertical; min-height: 130px; line-height: 1.7; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .submit-btn {
+      width: 100%;
+      background: var(--green-main);
+      color: #EAF3DE;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      margin-top: 4px;
+    }
+
+    .submit-btn:hover { background: var(--green-deep); transform: translateY(-1px); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .form-note { font-size: 12px; color: var(--text-hint); margin-top: 12px; text-align: center; }
+
+    .success-msg {
+      display: none;
+      background: var(--mint-light);
+      border: 1px solid var(--mint-border);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      margin-top: 16px;
+    }
+    .success-msg .check {
+      width: 44px; height: 44px;
+      background: #EAF3DE;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 12px;
+    }
+    .success-msg h3 { font-size: 16px; font-weight: 500; color: var(--green-dark); margin-bottom: 4px; }
+    .success-msg p { font-size: 13px; color: var(--text-muted); }
+
+    footer {
+      background: var(--white); padding: 24px 40px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px;
+      border-top: 1px solid var(--mint-border);
+    }
+    .footer-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .footer-name { font-size: 14px; font-weight: 500; color: var(--green-deep); }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { font-size: 12px; color: var(--text-hint); text-decoration: none; }
+    .footer-links a:hover { color: var(--green-main); }
+    .footer-copy { font-size: 12px; color: var(--text-hint); }
+
+    @media (max-width: 700px) {
+      nav { padding: 12px 20px; }
+      .page-hero { padding: 40px 20px 32px; }
+      .page-title { font-size: 28px; }
+      .contact-wrap { grid-template-columns: 1fr; padding: 36px 20px 60px; gap: 32px; }
+      .form-row { grid-template-columns: 1fr; }
+      .contact-form-wrap { padding: 24px 20px; }
+      footer { padding: 20px; flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo">
+      <svg width="36" height="36" viewBox="0 0 100 100" fill="none">
+        <path d="M50 6 L90 23 L90 53 C90 74 72 90 50 96 C28 90 10 74 10 53 L10 23 Z" fill="#EDF7F3" stroke="#3B6D11" stroke-width="5"/>
+        <path d="M26 57 L37 46 L45 55 L55 39 L63 48 L70 41 L78 51" stroke="#27500A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="78" cy="41" r="3.5" fill="#3B6D11"/>
+        <circle cx="78" cy="52" r="3.5" fill="#3B6D11"/>
+        <line x1="82" y1="41" x2="90" y2="41" stroke="#3B6D11" stroke-width="3" stroke-linecap="round"/>
+        <line x1="82" y1="52" x2="90" y2="52" stroke="#3B6D11" stroke-width="3" stroke-linecap="round"/>
+        <path d="M32 45 C32 37 38 32 46 35 L42 40 L44 45 L50 45 L52 40 L48 35 C56 31 63 37 63 45 C63 51 60 54 56 57 L50 68 L44 68 L38 57 C34 54 32 51 32 45Z" fill="#3B6D11"/>
+      </svg>
+      <div class="nav-lockup">
+        <span class="nav-name">GetPCFixed</span>
+        <span class="nav-tagline">Hey, we got you. Let's take a look together.</span>
+      </div>
+    </a>
+    <a href="index.html#download" class="nav-cta">Free Download</a>
+  </nav>
+
+  <div class="page-hero">
+    <div class="page-hero-inner">
+    <div class="page-label">Support</div>
+    <div class="page-title">We're here for you.</div>
+    <p class="page-sub">Real people read every message. We'll get back to you as soon as we can — usually within one business day.</p>
+    </div>
+  </div>
+
+  <div class="contact-wrap">
+
+    <!-- LEFT: INFO + FAQ -->
+    <div class="contact-info">
+      <h2>Get in touch</h2>
+      <p>Have a question about GetPCFixed? Something not working the way you expected? Just want to say hi? Drop us a message.</p>
+
+      <div class="info-card">
+        <div class="info-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="11" rx="2" stroke="#3B6D11" stroke-width="1.5"/><path d="M2 7l7 5 7-5" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="info-label">Email</div>
+          <div class="info-value"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="82f1f7f2f2edf0f6c2e5e7f6f2e1e4ebfae7e6ace1edef">[email&#160;protected]</a></div>
+          <div class="info-note">We read every message personally</div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="#3B6D11" stroke-width="1.5"/><path d="M9 5v4l2.5 2.5" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="info-label">Response time</div>
+          <div class="info-value">Within 1 business day</div>
+          <div class="info-note">Monday – Friday, 9am – 6pm EST</div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2L2 5.5v5C2 14 5 16.5 9 17.5c4-1 7-3.5 7-7v-5L9 2z" stroke="#3B6D11" stroke-width="1.5" stroke-linejoin="round"/><path d="M6 9l2 2 4-4" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div class="info-label">Based in</div>
+          <div class="info-value">North Carolina, USA</div>
+          <div class="info-note">getpcfixed.com &nbsp;&bull;&nbsp; getpcfixed.app</div>
+        </div>
+      </div>
+
+      <div class="faq-section">
+        <div class="faq-title">Common questions</div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-q">Is GetPCFixed really free? <span class="faq-arrow">&#9660;</span></div>
+          <div class="faq-a">Yes — the core app is completely free. No credit card, no subscription, no tricks. We may offer optional premium features in the future but the core will always be free.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-q">Will it touch my PC without asking? <span class="faq-arrow">&#9660;</span></div>
+          <div class="faq-a">Never. GetPCFixed only makes changes when you explicitly approve them. Every single time, without exception. That's our core promise.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-q">Can I undo a fix? <span class="faq-arrow">&#9660;</span></div>
+          <div class="faq-a">Yes. Every fix is logged and reversible with one click. If something doesn't feel right after a change, you can undo it instantly from your fix history.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-q">What Windows versions are supported? <span class="faq-arrow">&#9660;</span></div>
+          <div class="faq-a">GetPCFixed supports Windows 10 and Windows 11. We recommend keeping Windows updated for the best experience.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: FORM -->
+    <div class="contact-form-wrap">
+      <div class="form-title">Send us a message</div>
+      <p class="form-sub">We read every single one. No bots, no auto-replies — a real person will get back to you.</p>
+
+      <div id="contactForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fname">First name</label>
+            <input type="text" id="fname" name="first_name" placeholder="Your first name" />
+          </div>
+          <div class="form-group">
+            <label for="lname">Last name</label>
+            <input type="text" id="lname" name="last_name" placeholder="Your last name" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" />
+        </div>
+
+        <div class="form-group">
+          <label for="subject">What's this about?</label>
+          <select id="subject" name="subject">
+            <option value="" disabled selected>Choose a topic...</option>
+            <option value="support">I need help with the app</option>
+            <option value="bug">I found a bug or something broke</option>
+            <option value="question">I have a question before downloading</option>
+            <option value="feedback">I have feedback or a suggestion</option>
+            <option value="legal">Legal or license question</option>
+            <option value="other">Something else</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="message">Your message</label>
+          <textarea id="message" name="message" placeholder="Tell us what's going on — the more detail the better. What were you trying to do? What happened instead?"></textarea>
+        </div>
+
+        <button class="submit-btn" id="submitBtn" onclick="submitForm()">Send message</button>
+        <p class="form-note">We'll reply to the email address you provided, usually within one business day.</p>
+      </div>
+
+      <div class="success-msg" id="successMsg">
+        <div class="check">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10l4 4 8-8" stroke="#3B6D11" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Message sent — thank you!</h3>
+        <p>We got it. A real person will read your message and get back to you within one business day.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <a href="index.html" class="footer-logo">
+      <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+        <path d="M50 6 L90 23 L90 53 C90 74 72 90 50 96 C28 90 10 74 10 53 L10 23 Z" fill="#EDF7F3" stroke="#3B6D11" stroke-width="5"/>
+        <path d="M26 57 L37 46 L45 55 L55 39 L63 48 L70 41 L78 51" stroke="#27500A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M32 45 C32 37 38 32 46 35 L42 40 L44 45 L50 45 L52 40 L48 35 C56 31 63 37 63 45 C63 51 60 54 56 57 L50 68 L44 68 L38 57 C34 54 32 51 32 45Z" fill="#3B6D11"/>
+      </svg>
+      <span class="footer-name">GetPCFixed</span>
+    </a>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="terms.html">Terms</a>
+      <a href="license.html">License</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <span class="footer-copy">&copy; 2026 GetPCFixed. All rights reserved.</span>
+  </footer>
+
+  <script>
+    function toggleFaq(el) {
+      el.classList.toggle('open');
+    }
+
+    function submitForm() {
+      var fname = document.getElementById('fname').value.trim();
+      var email = document.getElementById('email').value.trim();
+      var subject = document.getElementById('subject').value;
+      var message = document.getElementById('message').value.trim();
+
+      if (!fname || !email || !subject || !message) {
+        alert('Please fill in all required fields before sending.');
+        return;
+      }
+      if (!email.includes('@') || !email.includes('.')) {
+        alert('Please enter a valid email address.');
+        return;
+      }
+
+      var btn = document.getElementById('submitBtn');
+      btn.textContent = 'Sending...';
+      btn.disabled = true;
+
+      fetch('https://formspree.io/f/xqegwara', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          first_name: fname,
+          last_name: document.getElementById('lname').value.trim(),
+          email: email,
+          subject: subject,
+          message: message
+        })
+      })
+      .then(function(res) {
+        if (res.ok) {
+          document.getElementById('contactForm').style.display = 'none';
+          document.getElementById('successMsg').style.display = 'block';
+        } else {
+          btn.textContent = 'Send message';
+          btn.disabled = false;
+          alert('Something went wrong. Please try again or email us at support@getpcfixed.com');
+        }
+      })
+      .catch(function() {
+        btn.textContent = 'Send message';
+        btn.disabled = false;
+        alert('Could not send. Please email us at support@getpcfixed.com');
+      });
+    }
+  </script>
+
+</body>
+</html>

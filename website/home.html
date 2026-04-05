@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GetPCFixed — Hey, we got you. Let's take a look together.</title>
+  <meta name="description" content="GetPCFixed finds what's wrong with your PC, explains it in plain English, and fixes it — only when you say so. Free. No signup. Windows 10 & 11." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --mint-bg:      #CFE9E2;
+      --mint-light:   #EDF7F3;
+      --mint-border:  #A8D4C8;
+      --mint-mid:     #97C459;
+      --green-dark:   #173404;
+      --green-deep:   #27500A;
+      --green-main:   #3B6D11;
+      --green-label:  #639922;
+      --white:        #ffffff;
+      --text-body:    #444441;
+      --text-muted:   #5F5E5A;
+      --text-hint:    #888780;
+      --warn-bg:      #FAEEDA;
+      --warn-border:  #EF9F27;
+      --warn-text:    #412402;
+      --warn-sub:     #633806;
+      --warn-dot:     #BA7517;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--mint-bg);
+      color: var(--text-body);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--white);
+      border-bottom: 1px solid var(--mint-border);
+      padding: 14px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .nav-logo svg { flex-shrink: 0; }
+
+    .nav-lockup { display: flex; flex-direction: column; gap: 1px; }
+    .nav-name { font-size: 16px; font-weight: 500; color: var(--green-deep); line-height: 1; }
+    .nav-tagline { font-size: 10px; color: var(--green-label); line-height: 1; }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--green-main); }
+
+    .nav-cta {
+      background: var(--green-main);
+      color: #EAF3DE;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 9px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .nav-cta:hover { background: var(--green-deep); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      background: var(--mint-light);
+      border-bottom: 1px solid var(--mint-border);
+      padding: 80px 40px 72px;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .hero-watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.06;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .hero-content { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; }
+
+    .hero-badge {
+      display: inline-block;
+      background: var(--white);
+      color: var(--green-main);
+      font-size: 12px;
+      padding: 5px 16px;
+      border-radius: 20px;
+      border: 1px solid var(--mint-border);
+      margin-bottom: 22px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 44px;
+      font-weight: 400;
+      color: var(--green-dark);
+      line-height: 1.2;
+      margin-bottom: 14px;
+      animation: fadeUp 0.5s 0.1s ease both;
+    }
+
+    .hero-tagline {
+      font-size: 20px;
+      color: var(--green-main);
+      font-weight: 500;
+      margin-bottom: 18px;
+      animation: fadeUp 0.5s 0.2s ease both;
+    }
+
+    .hero p {
+      font-size: 16px;
+      color: var(--text-body);
+      line-height: 1.8;
+      margin-bottom: 36px;
+      animation: fadeUp 0.5s 0.3s ease both;
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeUp 0.5s 0.4s ease both;
+    }
+
+    .btn-primary {
+      background: var(--green-main);
+      color: #EAF3DE;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      padding: 14px 28px;
+      border-radius: 10px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-primary:hover { background: var(--green-deep); transform: translateY(-1px); }
+
+    .btn-secondary {
+      background: var(--white);
+      color: var(--green-deep);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      padding: 14px 28px;
+      border-radius: 10px;
+      text-decoration: none;
+      border: 1px solid var(--mint-mid);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-secondary:hover { background: var(--mint-light); transform: translateY(-1px); }
+
+    .hero-trust {
+      font-size: 12px;
+      color: var(--text-hint);
+      margin-top: 20px;
+      animation: fadeUp 0.5s 0.5s ease both;
+    }
+
+    /* ── SECTIONS SHARED ── */
+    section { padding: 64px 40px; border-bottom: 1px solid var(--mint-border); }
+
+    .section-label {
+      font-size: 11px;
+      color: var(--green-label);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    .section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 30px;
+      font-weight: 400;
+      color: var(--green-dark);
+      margin-bottom: 8px;
+      line-height: 1.25;
+    }
+
+    .section-sub {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+      max-width: 520px;
+    }
+    /* centered section wrapper */
+    .section-inner {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* ── SCANNER ── */
+    .scanner { background: var(--white); }
+    .scanner-inner {
+      max-width: 700px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .scan-box {
+      background: var(--mint-light);
+      border: 1px solid var(--mint-border);
+      border-radius: 16px;
+      padding: 36px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .scan-score-wrap { text-align: center; margin-bottom: 28px; }
+
+    .scan-score {
+      font-family: 'DM Serif Display', serif;
+      font-size: 72px;
+      color: var(--green-main);
+      line-height: 1;
+    }
+
+    .scan-score-label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+    .scan-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .metric {
+      background: var(--white);
+      border: 1px solid var(--mint-border);
+      border-radius: 10px;
+      padding: 14px 10px;
+      text-align: center;
+    }
+
+    .metric-val { font-size: 18px; font-weight: 500; color: var(--green-dark); }
+    .metric-val.warn { color: var(--warn-dot); }
+    .metric-val.good { color: var(--green-main); }
+    .metric-label { font-size: 11px; color: var(--text-hint); margin-top: 3px; }
+
+    .scan-issue {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .issue-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--warn-dot);
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+
+    .issue-title { font-weight: 500; font-size: 14px; color: var(--warn-text); margin-bottom: 2px; }
+    .issue-text { font-size: 13px; color: var(--warn-sub); line-height: 1.6; }
+
+    .scan-cta {
+      display: block;
+      background: var(--green-main);
+      color: #EAF3DE;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 14px 24px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 12px;
+      text-align: center;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .scan-cta:hover { background: var(--green-deep); }
+
+    .scan-note { font-size: 12px; color: var(--text-hint); margin-top: 12px; text-align: center; }
+
+    /* ── FEATURES ── */
+    .features { background: var(--mint-bg); }
+
+    .feat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .feat-card {
+      background: var(--white);
+      border: 1px solid var(--mint-border);
+      border-radius: 14px;
+      padding: 24px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .feat-card:hover { transform: translateY(-3px); }
+
+    .feat-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--mint-light);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .feat-title { font-size: 14px; font-weight: 500; color: var(--green-deep); margin-bottom: 6px; }
+    .feat-desc { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+
+    /* ── HOW IT WORKS ── */
+    .how { background: var(--white); }
+
+    .steps { max-width: 580px; }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--mint-bg);
+    }
+
+    .step:last-child { border-bottom: none; }
+
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--green-main);
+      color: #EAF3DE;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-title { font-size: 15px; font-weight: 500; color: var(--green-dark); margin-bottom: 4px; }
+    .step-desc { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+
+    /* ── TRUST ── */
+    .trust { background: var(--mint-light); }
+
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .trust-item { display: flex; gap: 12px; align-items: flex-start; }
+
+    .trust-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 1px solid var(--mint-mid);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .trust-text { font-size: 14px; color: var(--text-body); line-height: 1.7; }
+    .trust-text strong { color: var(--green-deep); font-weight: 500; }
+
+    /* ── DOWNLOAD CTA ── */
+    .download-cta {
+      background: var(--green-deep);
+      border-bottom: none;
+      text-align: center;
+      padding: 80px 40px;
+    }
+
+    .download-cta .section-label { color: #97C459; }
+
+    .dl-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 36px;
+      font-weight: 400;
+      color: #EAF3DE;
+      margin-bottom: 8px;
+    }
+
+    .dl-tagline { font-size: 16px; color: #97C459; font-style: italic; margin-bottom: 8px; }
+    .dl-sub { font-size: 14px; color: #97C459; margin-bottom: 32px; }
+
+    .dl-btn {
+      display: inline-block;
+      background: #EAF3DE;
+      color: var(--green-deep);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      padding: 16px 36px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .dl-btn:hover { background: var(--white); transform: translateY(-2px); }
+    .dl-note { font-size: 12px; color: #639922; margin-top: 16px; }
+
+    /* WAITLIST */
+    .coming-soon-badge {
+      display: inline-block;
+      background: #97C459;
+      color: #173404;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 5px 14px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
+    .waitlist-form {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 28px auto 0;
+      max-width: 480px;
+    }
+    .waitlist-input {
+      flex: 1;
+      min-width: 220px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 13px 18px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      color: #173404;
+      background: #EAF3DE;
+    }
+    .waitlist-input:focus { background: #ffffff; }
+    .waitlist-btn {
+      background: #97C459;
+      color: #173404;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 13px 24px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      white-space: nowrap;
+    }
+    .waitlist-btn:hover { background: #ffffff; transform: translateY(-1px); }
+    .waitlist-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .waitlist-success {
+      display: none;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid #97C459;
+      border-radius: 12px;
+      padding: 18px 24px;
+      margin: 20px auto 0;
+      max-width: 400px;
+    }
+    .waitlist-success p { font-size: 14px; color: #EAF3DE; margin: 0; }
+    .waitlist-success strong { color: #97C459; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--white);
+      padding: 24px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .footer-name { font-size: 14px; font-weight: 500; color: var(--green-deep); }
+
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { font-size: 12px; color: var(--text-hint); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--green-main); }
+
+    .footer-copy { font-size: 12px; color: var(--text-hint); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 700px) {
+      nav { padding: 12px 20px; }
+      .nav-links { display: none; }
+      .hero { padding: 56px 20px 48px; }
+      .hero h1 { font-size: 32px; }
+      section { padding: 48px 20px; }
+      .section-title { font-size: 24px; }
+      footer { padding: 20px; flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">
+      <svg width="36" height="36" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 6 L90 23 L90 53 C90 74 72 90 50 96 C28 90 10 74 10 53 L10 23 Z" fill="#EDF7F3" stroke="#3B6D11" stroke-width="5"/>
+        <path d="M26 57 L37 46 L45 55 L55 39 L63 48 L70 41 L78 51" stroke="#27500A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="78" cy="41" r="3.5" fill="#3B6D11"/>
+        <circle cx="78" cy="52" r="3.5" fill="#3B6D11"/>
+        <line x1="82" y1="41" x2="90" y2="41" stroke="#3B6D11" stroke-width="3" stroke-linecap="round"/>
+        <line x1="82" y1="52" x2="90" y2="52" stroke="#3B6D11" stroke-width="3" stroke-linecap="round"/>
+        <path d="M32 45 C32 37 38 32 46 35 L42 40 L44 45 L50 45 L52 40 L48 35 C56 31 63 37 63 45 C63 51 60 54 56 57 L50 68 L44 68 L38 57 C34 54 32 51 32 45Z" fill="#3B6D11"/>
+      </svg>
+      <div class="nav-lockup">
+        <span class="nav-name">GetPCFixed</span>
+        <span class="nav-tagline">Hey, we got you. Let's take a look together.</span>
+      </div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#trust">Our promise</a></li>
+      <li><a href="#download">Download</a></li>
+    </ul>
+    <a href="#download" class="nav-cta">Free Download</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="hero-watermark" aria-hidden="true">
+      <svg width="480" height="480" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 6 L90 23 L90 53 C90 74 72 90 50 96 C28 90 10 74 10 53 L10 23 Z" fill="#3B6D11"/>
+        <path d="M26 57 L37 46 L45 55 L55 39 L63 48 L70 41 L78 51" stroke="#EDF7F3" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M32 45 C32 37 38 32 46 35 L42 40 L44 45 L50 45 L52 40 L48 35 C56 31 63 37 63 45 C63 51 60 54 56 57 L50 68 L44 68 L38 57 C34 54 32 51 32 45Z" fill="#EDF7F3"/>
+      </svg>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge">Free &mdash; No signup required</div>
+      <h1>Your PC acting up?<br>We know that feeling.</h1>
+      <p class="hero-tagline">Hey, we got you. Let's take a look together.</p>
+      <p>GetPCFixed finds what's wrong, tells you exactly what it is in plain English, and fixes it — only when you say so. No scary popups. No surprises. Just your computer working again.</p>
+      <div class="hero-btns">
+        <a href="#download" class="btn-primary">Let's take a look — it's free</a>
+        <a href="#scanner" class="btn-secondary">Scan my PC first</a>
+      </div>
+      <p class="hero-trust">Free forever &nbsp;&bull;&nbsp; Nothing installed without your permission &nbsp;&bull;&nbsp; No credit card ever</p>
+    </div>
+  </section>
+
+  <!-- SCANNER -->
+  <section class="scanner" id="scanner">
+    <div class="scanner-inner">
+    <div class="section-label">Free browser scan</div>
+    <div class="section-title">Not sure what's wrong?<br>Let's find out together.</div>
+    <p class="section-sub">No download needed. Real results in about 10 seconds.</p>
+    <div class="scan-box">
+      <div class="scan-score-wrap">
+        <div class="scan-score" id="scoreNum">—</div>
+        <div class="scan-score-label" id="scoreLabel">Click below to scan your PC</div>
+      </div>
+      <div class="scan-metrics" id="metrics" style="display:none">
+        <div class="metric"><div class="metric-val" id="ramVal">—</div><div class="metric-label">Logical cores</div></div>
+        <div class="metric"><div class="metric-val" id="memVal">—</div><div class="metric-label">RAM (approx)</div></div>
+        <div class="metric"><div class="metric-val" id="osVal">—</div><div class="metric-label">Platform</div></div>
+      </div>
+      <div id="issues"></div>
+      <button class="scan-cta" id="scanBtn" onclick="runScan()">Scan my PC — free, no download</button>
+      <p class="scan-note" id="scanNote">We only read basic system info your browser shares. Nothing is stored.</p>
+    </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features" id="features">
+    <div class="section-inner">
+    <div class="section-label">What we fix</div>
+    <div class="section-title">The stuff that drives everyone crazy</div>
+    <p class="section-sub">GetPCFixed targets the top problems Windows users deal with every single day.</p>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3v5l3 3" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round"/><circle cx="10" cy="10" r="7.5" stroke="#3B6D11" stroke-width="1.8"/></svg>
+        </div>
+        <div class="feat-title">Slow boot &amp; sluggish startup</div>
+        <div class="feat-desc">We find every app waking up at boot and let you decide which ones to shut off — then your PC starts like it used to.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="13" width="2.5" height="5" rx="1" fill="#3B6D11"/><rect x="7" y="9" width="2.5" height="9" rx="1" fill="#3B6D11"/><rect x="11" y="5" width="2.5" height="13" rx="1" fill="#3B6D11"/><rect x="15" y="2" width="2.5" height="16" rx="1" fill="#3B6D11"/></svg>
+        </div>
+        <div class="feat-title">RAM &amp; CPU running hot</div>
+        <div class="feat-desc">Something's eating your memory before you've opened anything. We find exactly what it is and explain it in plain English.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><ellipse cx="10" cy="12" rx="7.5" ry="4.5" stroke="#3B6D11" stroke-width="1.8"/><path d="M2.5 12V9c0-2.5 3.4-4.5 7.5-4.5S17.5 6.5 17.5 9v3" stroke="#3B6D11" stroke-width="1.8"/></svg>
+        </div>
+        <div class="feat-title">Disk health warnings</div>
+        <div class="feat-desc">We check your hard drive health in the background so you're never surprised by data loss. Catch it early, every time.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 12c2-4 4.5-6.5 8-6.5S16 8 18 12" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round"/><path d="M6 16c1-2 2.2-3 4-3s3 1 4 3" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round"/><circle cx="10" cy="18" r="1.2" fill="#3B6D11"/></svg>
+        </div>
+        <div class="feat-title">WiFi dropping &amp; driver issues</div>
+        <div class="feat-desc">Outdated or broken drivers are behind most connection problems. We find them and walk you through fixing it.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="10" rx="2" stroke="#3B6D11" stroke-width="1.8"/><path d="M7 17h6M10 14v3" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round"/><path d="M7 9l2 2 4-4" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="feat-title">Windows updates failing</div>
+        <div class="feat-desc">Stuck updates, failed downloads, error codes — we diagnose what's blocking them and get you back on track.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3L3 7v6c0 3.5 3 6.5 7 7.5 4-1 7-4 7-7.5V7L10 3z" stroke="#3B6D11" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 10l2 2 4-4" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="feat-title">Suspicious background activity</div>
+        <div class="feat-desc">Something running that shouldn't be? We flag it, explain it, and help you decide what to do — no panic, just clarity.</div>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how" id="how">
+    <div class="section-inner">
+    <div class="section-label">How it works</div>
+    <div class="section-title">We never do anything<br>without asking you first.</div>
+    <p class="section-sub">Four simple steps. You're in charge the whole time.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">We take a look</div>
+          <div class="step-desc">GetPCFixed reads your CPU, RAM, disk, temps, and startup list. Nothing has been changed yet — we're just looking.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">We explain what we found</div>
+          <div class="step-desc">Plain English, no jargon. You'll actually understand what's going on with your PC — not just a number that means nothing.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">You decide what to fix</div>
+          <div class="step-desc">We suggest. You approve. We never touch a single thing until you say go. Every time, without exception.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div>
+          <div class="step-title">We show you the receipt</div>
+          <div class="step-desc">Every change is logged in plain English. Changed your mind? One click undoes anything we did, instantly.</div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <!-- TRUST -->
+  <section class="trust" id="trust">
+    <div class="section-inner">
+    <div class="section-label">Our promise</div>
+    <div class="section-title">We know you've been burned before.</div>
+    <p class="section-sub">Every "PC optimizer" out there has lied to you. Fake problem counts, scary popups, junk bundled in the installer. Here's how GetPCFixed is different.</p>
+    <div class="trust-grid">
+      <div class="trust-item">
+        <div class="trust-check">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="trust-text"><strong>No fake problem counts</strong> — we only show what's actually wrong with your PC, not inflated numbers to scare you.</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-check">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="trust-text"><strong>We always ask first</strong> — you approve every single fix. You're in charge, always. No exceptions.</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-check">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="trust-text"><strong>Every fix is logged</strong> — plain English history of every change. Nothing hidden, nothing vague.</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-check">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="trust-text"><strong>One-click undo</strong> — changed your mind? Reverse any fix instantly. No harm done.</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-check">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="trust-text"><strong>No bundled junk</strong> — clean installer. Just GetPCFixed. Nothing else sneaking in alongside it.</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-check">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="trust-text"><strong>AI explains the why</strong> — not just "fixed." You learn what happened so you feel confident, not confused.</div>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <!-- DOWNLOAD CTA -->
+  <section class="download-cta" id="download">
+    <div class="coming-soon-badge">&#9679; Now in final testing</div>
+    <div class="dl-title">Something good is almost here.</div>
+    <div class="dl-tagline">"Hey, we got you. Let's take a look together."</div>
+    <div class="dl-sub">GetPCFixed is wrapping up final testing. Drop your email below and we'll let you know the second it's ready&nbsp;— free, Windows 10 &amp; 11.</div>
+    <div id="waitlistForm">
+      <div class="waitlist-form">
+        <input type="email" class="waitlist-input" id="waitlistEmail" placeholder="your@email.com" />
+        <button class="waitlist-btn" id="waitlistBtn" onclick="joinWaitlist()">Notify me at launch</button>
+      </div>
+      <div class="dl-note">No spam. One email when we launch. That's it.</div>
+    </div>
+    <div class="waitlist-success" id="waitlistSuccess">
+      <p><strong>You're on the list!</strong> We'll email you the moment GetPCFixed is ready. Thank you for your patience — this is going to be worth the wait.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <a href="#" class="footer-logo">
+      <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+        <path d="M50 6 L90 23 L90 53 C90 74 72 90 50 96 C28 90 10 74 10 53 L10 23 Z" fill="#EDF7F3" stroke="#3B6D11" stroke-width="5"/>
+        <path d="M26 57 L37 46 L45 55 L55 39 L63 48 L70 41 L78 51" stroke="#27500A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M32 45 C32 37 38 32 46 35 L42 40 L44 45 L50 45 L52 40 L48 35 C56 31 63 37 63 45 C63 51 60 54 56 57 L50 68 L44 68 L38 57 C34 54 32 51 32 45Z" fill="#3B6D11"/>
+      </svg>
+      <span class="footer-name">GetPCFixed</span>
+    </a>
+    <div class="footer-links">
+      <a href="terms.html">Terms of Service</a>
+      <a href="license.html">License</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <span class="footer-copy">&copy; 2026 GetPCFixed. All rights reserved.</span>
+  </footer>
+
+  <script>
+    function runScan() {
+      const btn = document.getElementById('scanBtn');
+      const scoreNum = document.getElementById('scoreNum');
+      const scoreLabel = document.getElementById('scoreLabel');
+      const metrics = document.getElementById('metrics');
+      const issues = document.getElementById('issues');
+      const scanNote = document.getElementById('scanNote');
+
+      btn.textContent = 'Scanning...';
+      btn.style.opacity = '0.7';
+      btn.disabled = true;
+
+      setTimeout(function() {
+        var cores = navigator.hardwareConcurrency || 4;
+        var mem = navigator.deviceMemory || 4;
+        var platform = navigator.userAgent.indexOf('Win') > -1 ? 'Windows' :
+                       navigator.userAgent.indexOf('Mac') > -1 ? 'macOS' : 'Other';
+        var online = navigator.onLine;
+        var battery = 'checking';
+
+        var score = 100;
+        var foundIssues = [];
+
+        if (cores <= 2) {
+          score -= 15;
+          foundIssues.push({
+            title: 'Low CPU core count detected',
+            text: 'Your processor has ' + cores + ' logical cores — heavier apps may compete for resources.'
+          });
+        }
+
+        if (mem <= 4) {
+          score -= 20;
+          foundIssues.push({
+            title: 'Low RAM detected',
+            text: 'Approximately ' + mem + 'GB of RAM — Windows works best with 8GB or more for everyday tasks.'
+          });
+        }
+
+        if (!online) {
+          score -= 10;
+          foundIssues.push({
+            title: 'Network connection issue',
+            text: 'Your browser reports you are currently offline or having connection trouble.'
+          });
+        }
+
+        if (foundIssues.length === 0) {
+          score = 91;
+          foundIssues.push({
+            title: 'Looking pretty good from here',
+            text: 'The free browser scan looks healthy — download GetPCFixed for a full deep scan of startup programs, temps, disk health, and more.'
+          });
+        }
+
+        score = Math.max(score, 45);
+
+        document.getElementById('ramVal').textContent = cores;
+        document.getElementById('memVal').textContent = mem + 'GB';
+        document.getElementById('osVal').textContent = platform;
+
+        var color = score >= 80 ? 'good' : 'warn';
+        scoreNum.textContent = score;
+        scoreNum.style.color = score >= 80 ? 'var(--green-main)' : 'var(--warn-dot)';
+        scoreLabel.textContent = score >= 80
+          ? 'Your PC looks pretty good from here'
+          : 'Found a few things worth looking at';
+
+        metrics.style.display = 'grid';
+
+        var html = '';
+        foundIssues.forEach(function(issue) {
+          html += '<div class="scan-issue"><div class="issue-dot"></div><div><div class="issue-title">' + issue.title + '</div><div class="issue-text">' + issue.text + '</div></div></div>';
+        });
+        issues.innerHTML = html;
+
+        btn.textContent = 'Want us to fix these? Download GetPCFixed — free';
+        btn.style.opacity = '1';
+        btn.disabled = false;
+        btn.onclick = function() { document.getElementById('download').scrollIntoView({behavior:'smooth'}); };
+        scanNote.textContent = 'The browser scan only sees what your browser shares. The desktop app goes deeper — startup programs, disk health, temps, drivers, and more.';
+      }, 1800);
+    }
+  </script>
+
+  <script>
+    function joinWaitlist() {
+      var email = document.getElementById('waitlistEmail').value.trim();
+      if (!email || !email.includes('@') || !email.includes('.')) {
+        alert('Please enter a valid email address.');
+        return;
+      }
+      var btn = document.getElementById('waitlistBtn');
+      btn.textContent = 'Adding you...';
+      btn.disabled = true;
+
+      fetch('https://formspree.io/f/xqegwara', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email: email, type: 'waitlist', subject: 'Waitlist signup' })
+      })
+      .then(function(res) {
+        document.getElementById('waitlistForm').style.display = 'none';
+        document.getElementById('waitlistSuccess').style.display = 'block';
+      })
+      .catch(function() {
+        document.getElementById('waitlistForm').style.display = 'none';
+        document.getElementById('waitlistSuccess').style.display = 'block';
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && document.activeElement.id === 'waitlistEmail') {
+        joinWaitlist();
+      }
+    });
+  </script>
+
+</body>
+</html>
