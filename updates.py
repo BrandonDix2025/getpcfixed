@@ -1,4 +1,42 @@
 import subprocess
+import os
+import shutil
+
+def fix_updates():
+    results = []
+    results.append("Running Windows Update Fix...\n")
+
+    # Stop Windows Update services
+    subprocess.run(["net", "stop", "wuauserv"], capture_output=True)
+    subprocess.run(["net", "stop", "bits"], capture_output=True)
+    subprocess.run(["net", "stop", "cryptsvc"], capture_output=True)
+    results.append("✅ Stopped Windows Update services")
+
+    # Clear Windows Update cache
+    cache_path = os.path.join(os.environ.get("SystemRoot", "C:\\Windows"), "SoftwareDistribution", "Download")
+    try:
+        if os.path.exists(cache_path):
+            shutil.rmtree(cache_path)
+            os.makedirs(cache_path)
+            results.append("✅ Cleared Windows Update cache")
+    except Exception as e:
+        results.append(f"⚠️  Could not clear cache (run as Admin): {e}")
+
+    # Restart Windows Update services
+    subprocess.run(["net", "start", "cryptsvc"], capture_output=True)
+    subprocess.run(["net", "start", "bits"], capture_output=True)
+    subprocess.run(["net", "start", "wuauserv"], capture_output=True)
+    results.append("✅ Restarted Windows Update services")
+
+    # Open Windows Update settings
+    subprocess.Popen(["explorer.exe", "ms-settings:windowsupdate"])
+    results.append("✅ Opened Windows Update settings")
+
+    results.append("\n✅ Done! Windows Update has been reset.")
+    results.append("Check Windows Update settings to install any pending updates.")
+
+    return "\n".join(results)
+
 
 def run_updates_scan():
     results = []

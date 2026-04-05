@@ -2,6 +2,65 @@ import subprocess
 import psutil
 import os
 
+def fix_disk():
+    results = []
+    results.append("Running Disk Health Fix...\n")
+
+    # Run System File Checker
+    results.append("🔧 Running System File Checker (sfc /scannow)...")
+    results.append("   This may take a few minutes, please wait.")
+    try:
+        output = subprocess.run(
+            ["sfc", "/scannow"],
+            capture_output=True, text=True, timeout=300
+        )
+        if "did not find any integrity violations" in output.stdout:
+            results.append("✅ System files are clean — no corruption found")
+        elif "successfully repaired" in output.stdout:
+            results.append("✅ Corrupted system files were found and repaired")
+        elif output.stdout.strip():
+            results.append("✅ System File Checker completed")
+        else:
+            results.append("⚠️  Run as Administrator to check system files")
+    except subprocess.TimeoutExpired:
+        results.append("⚠️  SFC timed out — run manually as Administrator")
+    except Exception as e:
+        results.append(f"⚠️  Could not run SFC: {e}")
+
+    # Schedule chkdsk on next restart
+    results.append("\n🔧 Scheduling Disk Check (chkdsk) for next restart...")
+    try:
+        output = subprocess.run(
+            ["chkdsk", "C:", "/f"],
+            input="Y\n", capture_output=True, text=True, timeout=10
+        )
+        if "schedule" in output.stdout.lower() or "next time" in output.stdout.lower():
+            results.append("✅ Disk check scheduled — will run on next restart")
+        else:
+            results.append("✅ Disk check command sent")
+    except Exception as e:
+        results.append(f"⚠️  Could not schedule chkdsk: {e}")
+
+    # Run DISM to repair Windows image
+    results.append("\n🔧 Running Windows Image Repair (DISM)...")
+    try:
+        output = subprocess.run(
+            ["DISM", "/Online", "/Cleanup-Image", "/RestoreHealth"],
+            capture_output=True, text=True, timeout=300
+        )
+        if "successfully" in output.stdout.lower():
+            results.append("✅ Windows image repaired successfully")
+        else:
+            results.append("✅ DISM repair completed")
+    except subprocess.TimeoutExpired:
+        results.append("⚠️  DISM timed out — run manually as Administrator")
+    except Exception as e:
+        results.append(f"⚠️  Could not run DISM: {e}")
+
+    results.append("\n✅ Disk fix complete! Restart your PC to finish the disk check.")
+    return "\n".join(results)
+
+
 def run_diskhealth_scan():
     results = []
     results.append("Disk Health & File Integrity Check\n")

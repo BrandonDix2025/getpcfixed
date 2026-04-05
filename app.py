@@ -11,15 +11,15 @@ from diagnose import diagnose as run_diagnosis
 from cleaner import scan_junk, clean_junk_silent
 from startup import get_startup_programs
 from logger import log_event, load_log
-from network import get_connection_type, check_internet, check_dns, check_gateway, ping_test, speed_test
+from network import get_connection_type, check_internet, check_dns, check_gateway, ping_test, speed_test, fix_network
 from wifi import run_wifi_scan
 from bsod import run_bsod_scan
 from crashes import run_crash_scan
 from malware import run_malware_scan
 from temps import run_temp_scan
-from updates import run_updates_scan
-from devices import run_devices_scan
-from diskhealth import run_diskhealth_scan
+from updates import run_updates_scan, fix_updates
+from devices import run_devices_scan, fix_devices
+from diskhealth import run_diskhealth_scan, fix_disk
 from battery import run_battery_scan
 
 load_dotenv()
@@ -116,6 +116,18 @@ class WorkerThread(QThread):
 
         elif self.task == "battery":
             self.result.emit(run_battery_scan())
+
+        elif self.task == "fix_updates":
+            self.result.emit(fix_updates())
+
+        elif self.task == "fix_disk":
+            self.result.emit(fix_disk())
+
+        elif self.task == "fix_devices":
+            self.result.emit(fix_devices())
+
+        elif self.task == "fix_network":
+            self.result.emit(fix_network())
 
         elif self.task == "history":
             entries = load_log()
@@ -230,6 +242,7 @@ class MainWindow(QMainWindow):
         self.active_btn = None
         self.all_btns = []
         self.ask_btn = None
+        self.repair_task = None
         self.setStyleSheet("""
             QMainWindow { background-color: #0d1117; }
             QWidget { background-color: #0d1117; color: #e6edf3; }
@@ -400,6 +413,12 @@ class MainWindow(QMainWindow):
         self.title.setStyleSheet("color: #e6edf3; border: none;")
         self.content_layout.addWidget(self.title)
 
+        self.repair_btn = QPushButton("🔧 Fix It")
+        self.repair_btn.setStyleSheet("background-color: #dc2626; color: white; font-size: 14px; padding: 10px; border-radius: 6px; font-weight: bold;")
+        self.repair_btn.clicked.connect(self.run_repair)
+        self.repair_btn.hide()
+        self.content_layout.addWidget(self.repair_btn)
+
         self.clean_btn = QPushButton("Clean Now")
         self.clean_btn.setStyleSheet("background-color: #16a34a; color: white; font-size: 14px; padding: 10px; border-radius: 6px;")
         self.clean_btn.clicked.connect(lambda: self.run_task("clean"))
@@ -435,6 +454,14 @@ class MainWindow(QMainWindow):
         self.content_layout.addWidget(self.output)
 
         main_layout.addWidget(content)
+
+    def run_repair(self):
+        self.repair_btn.hide()
+        self.status.setText("Fixing...")
+        self.output.setText("Running fix — please wait, this may take a minute...")
+        self.worker = WorkerThread(self.repair_task)
+        self.worker.result.connect(self.show_result)
+        self.worker.start()
 
     def show_dashboard(self):
         self.title.setText("PC Health Dashboard")
@@ -652,8 +679,18 @@ class MainWindow(QMainWindow):
         self.ask_hint.hide()
         self.ask_now_btn.hide()
         self.fix_btn.hide()
+        self.repair_btn.hide()
+        self.repair_task = None
         self.status.setText("Working...")
         self.output.setText("Please wait...")
+
+        fix_map = {
+            "updates":    "fix_updates",
+            "diskhealth": "fix_disk",
+            "devices":    "fix_devices",
+            "network":    "fix_network",
+            "wifi":       "fix_network",
+        }
 
         if task == "startup":
             self.show_startup()
@@ -662,6 +699,9 @@ class MainWindow(QMainWindow):
         if task == "about":
             self.show_about()
             return
+
+        if task in fix_map:
+            self.repair_task = fix_map[task]
 
         self.title.setText({
             "scan": "System Scan Results",
@@ -689,6 +729,11 @@ class MainWindow(QMainWindow):
         self.clean_btn.hide()
         if "Click Clean Now" in text:
             self.clean_btn.show()
+
+        if self.repair_task:
+            self.repair_btn.show()
+        else:
+            self.repair_btn.hide()
 
         html = ""
         for line in text.split("\n"):

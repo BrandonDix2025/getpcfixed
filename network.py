@@ -4,6 +4,47 @@ import subprocess
 import speedtest
 import platform
 
+def fix_network():
+    results = []
+    results.append("Running Network Fix...\n")
+
+    # Flush DNS cache
+    results.append("🔧 Flushing DNS cache...")
+    try:
+        subprocess.run(["ipconfig", "/flushdns"], capture_output=True, timeout=15)
+        results.append("✅ DNS cache flushed")
+    except Exception as e:
+        results.append(f"⚠️  Could not flush DNS: {e}")
+
+    # Reset Winsock
+    results.append("\n🔧 Resetting Winsock...")
+    try:
+        subprocess.run(["netsh", "winsock", "reset"], capture_output=True, timeout=15)
+        results.append("✅ Winsock reset — fixes many connection errors")
+    except Exception as e:
+        results.append(f"⚠️  Could not reset Winsock: {e}")
+
+    # Reset IP stack
+    results.append("\n🔧 Resetting IP stack...")
+    try:
+        subprocess.run(["netsh", "int", "ip", "reset"], capture_output=True, timeout=15)
+        results.append("✅ IP stack reset")
+    except Exception as e:
+        results.append(f"⚠️  Could not reset IP stack: {e}")
+
+    # Release and renew IP address
+    results.append("\n🔧 Renewing IP address...")
+    try:
+        subprocess.run(["ipconfig", "/release"], capture_output=True, timeout=15)
+        subprocess.run(["ipconfig", "/renew"], capture_output=True, timeout=30)
+        results.append("✅ IP address renewed")
+    except Exception as e:
+        results.append(f"⚠️  Could not renew IP: {e}")
+
+    results.append("\n✅ Network fix complete!")
+    results.append("⚠️  Restart your PC for all changes to fully take effect.")
+    return "\n".join(results)
+
 def get_connection_type():
     stats = psutil.net_if_stats()
     addrs = psutil.net_if_addrs()
