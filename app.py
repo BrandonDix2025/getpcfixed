@@ -8,7 +8,7 @@ from diagnose import diagnose as run_diagnosis
 from cleaner import scan_junk, clean_junk_silent
 from startup import get_startup_programs
 from logger import log_event, load_log
-
+from network import get_connection_type, check_internet, check_dns, check_gateway, ping_test, speed_test
 class WorkerThread(QThread):
     result = pyqtSignal(str)
 
@@ -51,6 +51,28 @@ class WorkerThread(QThread):
             cleaned, size_mb = clean_junk_silent()
             log_event("Junk Clean", f"Cleaned {cleaned} files and freed up {size_mb} MB")
             self.result.emit(f"Done! Cleaned {cleaned} junk files and freed up {size_mb} MB.")
+
+        elif self.task == "network":
+            conn_type, iface = get_connection_type()
+            internet = check_internet()
+            dns = check_dns()
+            gateway = check_gateway()
+            ping = ping_test()
+            result = (
+                f"Connection Type : {conn_type} ({iface})\n"
+                f"Internet        : {'✅ Connected' if internet else '❌ No Connection'}\n"
+                f"DNS             : {'✅ Working' if dns else '❌ Failed'}\n"
+                f"Gateway         : {'✅ Reachable' if gateway else '❌ Not Reachable'}\n"
+                f"Ping            : {ping}\n\n"
+                f"Running speed test — this takes 15-20 seconds...\n"
+            )
+            self.result.emit(result)
+            download, upload = speed_test()
+            if download:
+                result += f"Download Speed  : {download} Mbps\nUpload Speed    : {upload} Mbps"
+            else:
+                result += "Speed Test      : Failed to complete"
+            self.result.emit(result)
 
         elif self.task == "history":
             entries = load_log()
@@ -125,6 +147,7 @@ class MainWindow(QMainWindow):
             ("AI Diagnosis", "diagnose"),
             ("Clean Junk Files", "junk"),
             ("Fix Startup", "startup"),
+            ("Network Diagnostic", "network"),
             ("View History", "history"),
             ("About", "about"),
         ]
@@ -181,6 +204,7 @@ class MainWindow(QMainWindow):
             "diagnose": "AI Diagnosis",
             "junk": "Junk File Scanner",
             "clean": "Junk File Cleaner",
+            "network": "Network Diagnostic",
             "history": "History Log"
         }.get(task, "GetPCFixed"))
 
