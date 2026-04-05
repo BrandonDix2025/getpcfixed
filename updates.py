@@ -33,7 +33,11 @@ def fix_updates():
     results.append("✅ Opened Windows Update settings")
 
     results.append("\n✅ Done! Windows Update has been reset.")
-    results.append("Check Windows Update settings to install any pending updates.")
+    results.append("👉 What to do next:")
+    results.append("   1. Look at the Windows Update window that just opened")
+    results.append("   2. Click the 'Check for updates' button")
+    results.append("   3. Let Windows download and install any updates it finds")
+    results.append("   4. Restart your PC when it asks you to")
 
     return "\n".join(results)
 

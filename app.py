@@ -13,14 +13,14 @@ from startup import get_startup_programs
 from logger import log_event, load_log
 from network import get_connection_type, check_internet, check_dns, check_gateway, ping_test, speed_test, fix_network
 from wifi import run_wifi_scan
-from bsod import run_bsod_scan
-from crashes import run_crash_scan
-from malware import run_malware_scan
-from temps import run_temp_scan
+from bsod import run_bsod_scan, fix_bsod
+from crashes import run_crash_scan, fix_crashes
+from malware import run_malware_scan, fix_malware
+from temps import run_temp_scan, fix_temps
 from updates import run_updates_scan, fix_updates
 from devices import run_devices_scan, fix_devices
 from diskhealth import run_diskhealth_scan, fix_disk
-from battery import run_battery_scan
+from battery import run_battery_scan, fix_battery
 
 load_dotenv()
 
@@ -128,6 +128,21 @@ class WorkerThread(QThread):
 
         elif self.task == "fix_network":
             self.result.emit(fix_network())
+
+        elif self.task == "fix_malware":
+            self.result.emit(fix_malware())
+
+        elif self.task == "fix_temps":
+            self.result.emit(fix_temps())
+
+        elif self.task == "fix_bsod":
+            self.result.emit(fix_bsod())
+
+        elif self.task == "fix_crashes":
+            self.result.emit(fix_crashes())
+
+        elif self.task == "fix_battery":
+            self.result.emit(fix_battery())
 
         elif self.task == "history":
             entries = load_log()
@@ -690,6 +705,11 @@ class MainWindow(QMainWindow):
             "devices":    "fix_devices",
             "network":    "fix_network",
             "wifi":       "fix_network",
+            "malware":    "fix_malware",
+            "temps":      "fix_temps",
+            "bsod":       "fix_bsod",
+            "crashes":    "fix_crashes",
+            "battery":    "fix_battery",
         }
 
         if task == "startup":

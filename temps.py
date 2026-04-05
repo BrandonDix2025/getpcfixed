@@ -1,6 +1,54 @@
 import psutil
 import subprocess
 
+def fix_temps():
+    results = []
+    results.append("Running Overheating Fix...\n")
+
+    # Set power plan to Balanced to reduce heat
+    results.append("🔧 Setting power plan to Balanced...")
+    try:
+        cmd = "powercfg /setactive SCHEME_BALANCED"
+        subprocess.run(["powershell", "-Command", cmd], capture_output=True, timeout=15)
+        results.append("✅ Power plan set to Balanced — reduces heat and battery drain")
+    except Exception as e:
+        results.append(f"⚠️  Could not change power plan: {e}")
+
+    # Kill top CPU-hungry background processes (safe ones only)
+    results.append("\n🔧 Checking for high-CPU background processes...")
+    try:
+        killed = []
+        safe_to_kill = ["SearchIndexer.exe", "MsMpEng.exe"]
+        for p in psutil.process_iter(['pid', 'name', 'cpu_percent']):
+            try:
+                cpu = p.cpu_percent(interval=0.2)
+                if cpu > 50 and p.info['name'] in safe_to_kill:
+                    p.kill()
+                    killed.append(p.info['name'])
+            except Exception:
+                pass
+        if killed:
+            results.append(f"✅ Stopped high-CPU processes: {', '.join(killed)}")
+        else:
+            results.append("✅ No runaway processes found")
+    except Exception as e:
+        results.append(f"⚠️  Could not check processes: {e}")
+
+    # Disable unnecessary visual effects to reduce CPU load
+    results.append("\n🔧 Optimizing Windows visual effects for performance...")
+    try:
+        cmd = "SystemPropertiesPerformance.exe"
+        subprocess.Popen(cmd)
+        results.append("✅ Performance Options opened — select 'Adjust for best performance'")
+        results.append("   → Select 'Adjust for best performance' then click Apply, then OK")
+    except Exception as e:
+        results.append(f"⚠️  Could not open Performance Options: {e}")
+
+    results.append("\n✅ Overheating fix complete!")
+    results.append("⚠️  Physical fixes: clean dust from vents, ensure airflow around PC.")
+    return "\n".join(results)
+
+
 def run_temp_scan():
     results = []
     results.append("Overheating & Temperature Check\n")

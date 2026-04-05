@@ -148,5 +148,11 @@
         "time": "01:19 PM",
         "type": "Dashboard",
         "details": "Score: 100 | CPU: 4.9% | RAM: 47% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "01:30 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 6.6% | RAM: 48% | Disk: 10%"
     }
 ]
