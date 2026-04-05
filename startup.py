@@ -35,6 +35,16 @@ def disable_startup_program(program):
     except OSError:
         return False
 
+def undo_startup_disable(name, path, hive, key_path):
+    """Re-add a startup entry that was previously disabled."""
+    try:
+        key = winreg.OpenKey(hive, key_path, 0, winreg.KEY_WRITE)
+        winreg.SetValueEx(key, name, 0, winreg.REG_SZ, path)
+        winreg.CloseKey(key)
+        return True
+    except OSError:
+        return False
+
 def run_startup_fixer():
     programs = get_startup_programs()
 

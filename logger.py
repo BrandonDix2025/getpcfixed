@@ -14,14 +14,16 @@ def save_log(log):
     with open(LOG_FILE, "w") as f:
         json.dump(log, f, indent=4)
 
-def log_event(event_type, details):
+def log_event(event_type, details, undo_data=None):
     log = load_log()
     entry = {
-        "date": datetime.now().strftime("%Y-%m-%d"),
-        "time": datetime.now().strftime("%I:%M %p"),
-        "type": event_type,
+        "date":    datetime.now().strftime("%Y-%m-%d"),
+        "time":    datetime.now().strftime("%I:%M %p"),
+        "type":    event_type,
         "details": details
     }
+    if undo_data:
+        entry["undo_data"] = undo_data
     log.append(entry)
     save_log(log)
 

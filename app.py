@@ -847,6 +847,22 @@ class MainWindow(QMainWindow):
         """)
         self.startup_scroll.hide()
         out_vb.addWidget(self.startup_scroll)
+
+        self.history_scroll = QScrollArea()
+        self.history_scroll.setWidgetResizable(True)
+        self.history_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.history_scroll.setStyleSheet("""
+            QScrollArea { border: none; background: transparent; }
+            QScrollBar:vertical { background: transparent; width: 4px; }
+            QScrollBar::handle:vertical {
+                background: #3a3a3a; border-radius: 2px; min-height: 20px;
+            }
+            QScrollBar::handle:vertical:hover { background: #606060; }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
+            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: transparent; }
+        """)
+        self.history_scroll.hide()
+        out_vb.addWidget(self.history_scroll)
         cv.addWidget(out_frame)
 
         root.addWidget(content_wrap)
@@ -1255,6 +1271,9 @@ class MainWindow(QMainWindow):
         self.repair_btn.hide()
         self.clean_btn.hide()
         self.repair_task = None
+        self.startup_scroll.hide()
+        self.history_scroll.hide()
+        self.output.show()
         self.status.setText("\u25cf  Working...")
         self.output.setHtml(self._msg_html("Please wait..."))
 
@@ -1276,6 +1295,9 @@ class MainWindow(QMainWindow):
             return
         if task == "about":
             self.show_about()
+            return
+        if task == "history":
+            self.show_history()
             return
 
         if task in fix_map:
@@ -1465,7 +1487,169 @@ class MainWindow(QMainWindow):
                     "color: #505050; border: none; background: transparent;"
                     " text-decoration: line-through;"
                 )
-                log_event("Startup Disabled", f"Disabled {program['name']} from startup")
+                log_event(
+                    "Startup Disabled",
+                    f"Disabled {program['name']} from startup",
+                    undo_data={
+                        "action":   "startup_disable",
+                        "name":     program["name"],
+                        "path":     program["path"],
+                        "hive":     program["hive"],
+                        "key_path": program["key_path"],
+                    }
+                )
+            else:
+                btn.setText("Failed!")
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: #c42b1c;
+                        color: white; border: none; border-radius: 6px;
+                        font-size: 11px; font-weight: 600;
+                        font-family: 'Segoe UI';
+                    }
+                """)
+
+    def show_history(self):
+        self._page = 'history'
+        self.title.setText("Fix History")
+        self.clean_btn.hide()
+        self.fix_btn.hide()
+        self.repair_btn.hide()
+        self.ask_input.hide()
+        self.ask_hint.hide()
+        self.ask_now_btn.hide()
+        self.startup_scroll.hide()
+        self.output.hide()
+        self.history_scroll.show()
+
+        entries = load_log()
+        t = self.theme
+
+        container = QWidget()
+        container.setStyleSheet("background: transparent;")
+        vbox = QVBoxLayout(container)
+        vbox.setContentsMargins(2, 4, 8, 8)
+        vbox.setSpacing(8)
+
+        if not entries:
+            empty = QLabel("No history yet. Run a scan or fix first!")
+            empty.setStyleSheet(
+                f"color:{t['msg_text']}; font-size:13px; border:none; background:transparent;"
+            )
+            vbox.addWidget(empty)
+        else:
+            hdr_lbl = QLabel(f"FIX RECEIPTS  \u2022  {len(entries)} entries")
+            hdr_lbl.setFont(QFont("Segoe UI", 10))
+            hdr_lbl.setStyleSheet(
+                f"color:{t['sub_color']}; border:none; background:transparent; letter-spacing:1px;"
+            )
+            vbox.addWidget(hdr_lbl)
+            vbox.addSpacing(4)
+
+            for entry in reversed(entries):
+                card = QFrame()
+                card.setStyleSheet(f"""
+                    QFrame {{
+                        background-color: {t['card_bg']};
+                        border: 1px solid {t['card_border']};
+                        border-radius: 8px;
+                    }}
+                """)
+                row = QHBoxLayout(card)
+                row.setContentsMargins(16, 12, 12, 12)
+                row.setSpacing(12)
+
+                info_col = QVBoxLayout()
+                info_col.setSpacing(3)
+
+                ts_lbl = QLabel(f"{entry['date']}  {entry['time']}")
+                ts_lbl.setFont(QFont("Segoe UI", 9))
+                ts_lbl.setStyleSheet(
+                    f"color:{t['sub_color']}; border:none; background:transparent;"
+                )
+                info_col.addWidget(ts_lbl)
+
+                type_lbl = QLabel(entry['type'])
+                type_lbl.setFont(QFont("Segoe UI", 12, QFont.Bold))
+                type_lbl.setStyleSheet(
+                    f"color:{t['output_text']}; border:none; background:transparent;"
+                )
+                info_col.addWidget(type_lbl)
+
+                detail_lbl = QLabel(entry['details'])
+                detail_lbl.setFont(QFont("Segoe UI", 9))
+                detail_lbl.setStyleSheet(
+                    f"color:{t['sub_color']}; border:none; background:transparent;"
+                )
+                detail_lbl.setWordWrap(True)
+                info_col.addWidget(detail_lbl)
+                row.addLayout(info_col, stretch=1)
+
+                if entry.get("undo_data"):
+                    undo_btn = QPushButton("Undo")
+                    undo_btn.setFixedWidth(80)
+                    undo_btn.setFixedHeight(32)
+                    undo_btn.setCursor(Qt.PointingHandCursor)
+                    undo_btn.setStyleSheet("""
+                        QPushButton {
+                            background-color: #d4a017;
+                            color: white; border: none; border-radius: 6px;
+                            font-size: 12px; font-weight: 600;
+                            font-family: 'Segoe UI';
+                        }
+                        QPushButton:hover { background-color: #e6b020; }
+                    """)
+                    undo_btn.clicked.connect(
+                        lambda checked, e=entry, b=undo_btn, tl=type_lbl:
+                        self.undo_action(e, b, tl)
+                    )
+                    row.addWidget(undo_btn)
+
+                vbox.addWidget(card)
+
+        vbox.addStretch()
+        self.history_scroll.setWidget(container)
+        self.status.setText(f"\u25cf  {len(entries)} entries")
+
+    def undo_action(self, entry, btn, type_lbl):
+        """Two-click confirm: Undo -> Confirm? -> execute."""
+        if btn.text() == "Undo":
+            btn.setText("Confirm?")
+            btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #c42b1c;
+                    color: white; border: none; border-radius: 6px;
+                    font-size: 11px; font-weight: 600;
+                    font-family: 'Segoe UI';
+                }
+                QPushButton:hover { background-color: #e03226; }
+            """)
+            return
+
+        undo_data = entry.get("undo_data", {})
+        if undo_data.get("action") == "startup_disable":
+            success = undo_startup_disable(
+                undo_data["name"],
+                undo_data["path"],
+                undo_data["hive"],
+                undo_data["key_path"],
+            )
+            if success:
+                btn.setText("\u2713  Restored")
+                btn.setEnabled(False)
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: transparent;
+                        color: #505050; border: 1px solid #2e2e2e;
+                        border-radius: 6px; font-size: 11px; font-weight: 600;
+                        font-family: 'Segoe UI';
+                    }
+                """)
+                type_lbl.setStyleSheet(
+                    "color: #505050; border: none; background: transparent;"
+                    " text-decoration: line-through;"
+                )
+                log_event("Startup Restored", f"Re-enabled {undo_data['name']} at startup")
             else:
                 btn.setText("Failed!")
                 btn.setStyleSheet("""
