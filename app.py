@@ -23,7 +23,13 @@ from diskhealth import run_diskhealth_scan, fix_disk
 from battery import run_battery_scan, fix_battery
 from monitor import start_monitor, stop_monitor, is_running, set_notify_callback
 
-load_dotenv()
+# Find .env whether running as .exe or as Python script
+if getattr(sys, 'frozen', False):
+    BASE_DIR = sys._MEIPASS
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 
 class WorkerThread(QThread):
@@ -183,7 +189,9 @@ Here is their current PC health data:
 Based on their problem and their PC data:
 1. Tell them in plain English what you think is wrong
 2. Tell them exactly what you would do to fix it
-3. End with: "Want me to fix this for you?"
+3. If it is something the app can fix, end with: "Want me to fix this for you?"
+4. If it requires physical repair, new hardware, or something outside of software, tell them honestly. Say something like: "This one is outside what software can fix. Here’s what I’d suggest next: [specific advice]. If none of that works, it may be time to have a technician look at it or consider a replacement."
+5. Always end with a clear next step — never leave the customer with no direction.
 
 Keep it friendly, simple, and short. No technical jargon. Talk like a helpful neighbor, not a manual.
 """

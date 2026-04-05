@@ -1,8 +1,13 @@
 import psutil
 import socket
 import subprocess
-import speedtest
 import platform
+
+try:
+    import speedtest as _speedtest
+    SPEEDTEST_AVAILABLE = True
+except Exception:
+    SPEEDTEST_AVAILABLE = False
 
 def fix_network():
     results = []
@@ -80,8 +85,10 @@ def ping_test():
         return f"Ping failed: {e}"
 
 def speed_test():
+    if not SPEEDTEST_AVAILABLE:
+        return None, None
     try:
-        st = speedtest.Speedtest()
+        st = _speedtest.Speedtest()
         st.get_best_server()
         download = st.download() / 1_000_000
         upload = st.upload() / 1_000_000

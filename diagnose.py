@@ -1,10 +1,15 @@
 import os
+import sys
 import anthropic
 from dotenv import load_dotenv
 from scanner import scan_system_data
 from logger import log_event
 
-load_dotenv()
+if getattr(sys, 'frozen', False):
+    BASE_DIR = sys._MEIPASS
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 def diagnose():
     data = scan_system_data()
