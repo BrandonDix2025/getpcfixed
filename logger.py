@@ -1,8 +1,16 @@
 import json
 import os
+import sys
 from datetime import datetime
 
-LOG_FILE = "getpcfixed_log.json"
+# When installed to Program Files, write to AppData instead
+# (Program Files is read-only for non-admin apps)
+if getattr(sys, 'frozen', False):
+    _app_data = os.path.join(os.environ.get('APPDATA', os.path.expanduser('~')), 'GetPCFixed')
+    os.makedirs(_app_data, exist_ok=True)
+    LOG_FILE = os.path.join(_app_data, 'getpcfixed_log.json')
+else:
+    LOG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'getpcfixed_log.json')
 
 def load_log():
     if not os.path.exists(LOG_FILE):
