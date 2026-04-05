@@ -3,7 +3,7 @@ import os
 import anthropic
 from dotenv import load_dotenv
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
-                              QHBoxLayout, QPushButton, QLabel, QTextEdit, QFrame)
+                              QHBoxLayout, QPushButton, QLabel, QTextEdit, QFrame, QScrollArea)
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QFont
 from scanner import scan_system_data
@@ -212,6 +212,14 @@ Reply with only the single word.
             self.decision.emit("scan")
 
 
+class DashboardThread(QThread):
+    result = pyqtSignal(dict)
+
+    def run(self):
+        data = scan_system_data()
+        self.result.emit(data)
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -219,6 +227,9 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(700, 500)
         self.last_diagnosis = ""
         self.last_question = ""
+        self.active_btn = None
+        self.all_btns = []
+        self.ask_btn = None
         self.setStyleSheet("""
             QMainWindow { background-color: #0d1117; }
             QWidget { background-color: #0d1117; color: #e6edf3; }
@@ -243,6 +254,7 @@ class MainWindow(QMainWindow):
             }
         """)
         self.build_ui()
+        self.show_dashboard()
 
     def build_ui(self):
         central = QWidget()
@@ -273,45 +285,103 @@ class MainWindow(QMainWindow):
         ask_btn = QPushButton("💬 Ask GetPCFixed")
         ask_btn.setStyleSheet("""
             QPushButton {
-                background-color: #2563eb;
+                background-color: #16a34a;
                 color: white;
-                border: 1px solid #2563eb;
+                border: 1px solid #16a34a;
                 border-radius: 6px;
                 padding: 12px 20px;
                 font-size: 14px;
                 font-weight: bold;
             }
-            QPushButton:hover { background-color: #1d4ed8; }
+            QPushButton:hover { background-color: #15803d; }
         """)
-        ask_btn.clicked.connect(self.show_ask)
+        self.ask_btn = ask_btn
+        self.all_btns.append(ask_btn)
+        ask_btn.clicked.connect(lambda: (self.set_active_btn(self.ask_btn), self.show_ask()))
         sidebar_layout.addWidget(ask_btn)
         sidebar_layout.addSpacing(6)
 
-        buttons = [
-            ("Scan My PC", "scan"),
-            ("AI Diagnosis", "diagnose"),
-            ("Clean Junk Files", "junk"),
-            ("Fix Startup", "startup"),
-            ("Network Diagnostic", "network"),
-            ("WiFi Issues", "wifi"),
-            ("Blue Screen (BSOD)", "bsod"),
-            ("App Crashes", "crashes"),
-            ("Malware Check", "malware"),
-            ("Overheating", "temps"),
-            ("Windows Updates", "updates"),
-            ("Devices & USB", "devices"),
-            ("Disk Health", "diskhealth"),
-            ("Battery", "battery"),
-            ("View History", "history"),
-            ("About", "about"),
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll_area.setStyleSheet("""
+            QScrollArea { border: none; background: transparent; }
+            QScrollBar:vertical { background: #161b22; width: 6px; border-radius: 3px; }
+            QScrollBar::handle:vertical { background: #30363d; border-radius: 3px; min-height: 20px; }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0px; }
+        """)
+
+        scroll_widget = QWidget()
+        scroll_widget.setStyleSheet("background: transparent;")
+        scroll_layout = QVBoxLayout(scroll_widget)
+        scroll_layout.setContentsMargins(0, 0, 4, 0)
+        scroll_layout.setSpacing(4)
+
+        groups = [
+            ("⚡ Quick Actions", [
+                ("Scan My PC", "scan"),
+                ("AI Diagnosis", "diagnose"),
+            ]),
+            ("🧹 Performance", [
+                ("Clean Junk Files", "junk"),
+                ("Fix Startup", "startup"),
+                ("Overheating", "temps"),
+            ]),
+            ("🌐 Connectivity", [
+                ("Network Diagnostic", "network"),
+                ("WiFi Issues", "wifi"),
+            ]),
+            ("🛡️ Health & Safety", [
+                ("Malware Check", "malware"),
+                ("Windows Updates", "updates"),
+                ("Disk Health", "diskhealth"),
+                ("Devices & USB", "devices"),
+            ]),
+            ("🚨 Problems", [
+                ("Blue Screen (BSOD)", "bsod"),
+                ("App Crashes", "crashes"),
+                ("Battery", "battery"),
+            ]),
+            ("📋 More", [
+                ("View History", "history"),
+                ("About", "about"),
+            ]),
         ]
 
-        for label, task in buttons:
-            btn = QPushButton(label)
-            btn.clicked.connect(lambda checked, t=task: self.run_task(t))
-            sidebar_layout.addWidget(btn)
+        for group_label, buttons in groups:
+            header = QPushButton(f"▶  {group_label}")
+            header.setStyleSheet("""
+                QPushButton {
+                    background-color: #161b22;
+                    color: #8b949e;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 6px 8px;
+                    font-size: 11px;
+                    font-weight: bold;
+                    text-align: left;
+                }
+                QPushButton:hover {
+                    background-color: #1f2937;
+                    color: #e6edf3;
+                }
+            """)
+            scroll_layout.addWidget(header)
 
-        sidebar_layout.addStretch()
+            child_buttons = []
+            for label, task in buttons:
+                btn = QPushButton(label)
+                btn.hide()
+                btn.clicked.connect(lambda checked, t=task, b=btn: (self.set_active_btn(b), self.run_task(t)))
+                self.all_btns.append(btn)
+                scroll_layout.addWidget(btn)
+                child_buttons.append(btn)
+
+            header.clicked.connect(lambda checked, h=header, children=child_buttons, gl=group_label: self.toggle_group(h, children, gl))
+
+        scroll_layout.addStretch()
+        scroll_area.setWidget(scroll_widget)
+        sidebar_layout.addWidget(scroll_area)
 
         self.status = QLabel("Ready")
         self.status.setAlignment(Qt.AlignCenter)
@@ -361,10 +431,168 @@ class MainWindow(QMainWindow):
 
         self.output = QTextEdit()
         self.output.setReadOnly(True)
-        self.output.setText("Select an option from the left to get started.\n\nGetPCFixed will scan, diagnose, and fix your PC — always asking before changing anything.")
+        self.output.setText("Loading dashboard...")
         self.content_layout.addWidget(self.output)
 
         main_layout.addWidget(content)
+
+    def show_dashboard(self):
+        self.title.setText("PC Health Dashboard")
+        self.clean_btn.hide()
+        self.fix_btn.hide()
+        self.ask_input.hide()
+        self.ask_hint.hide()
+        self.ask_now_btn.hide()
+        self.output.setText("Scanning your PC...")
+        self.status.setText("Scanning...")
+        self.dash_worker = DashboardThread()
+        self.dash_worker.result.connect(self.render_dashboard)
+        self.dash_worker.start()
+
+    def render_dashboard(self, data):
+        cpu = data['cpu']
+        ram_used = data['ram_used']
+        ram_total = data['ram_total']
+        disk_used = data['disk_used']
+        disk_total = data['disk_total']
+        ram_pct = round((ram_used / ram_total) * 100)
+        disk_pct = round((disk_used / disk_total) * 100)
+
+        issues = 0
+        if cpu >= 80: issues += 2
+        elif cpu >= 50: issues += 1
+        if ram_pct >= 80: issues += 2
+        elif ram_pct >= 50: issues += 1
+        if disk_pct >= 90: issues += 2
+        elif disk_pct >= 70: issues += 1
+
+        score = max(0, 100 - (issues * 15))
+
+        if score >= 80:
+            score_color = "#22c55e"
+            status_msg = "Your PC looks healthy! ✅"
+        elif score >= 50:
+            score_color = "#f59e0b"
+            status_msg = "Your PC has a few things to check. ⚠️"
+        else:
+            score_color = "#ef4444"
+            status_msg = "Your PC needs attention! 🚨"
+
+        cpu_color = "#22c55e" if cpu < 50 else "#f59e0b" if cpu < 80 else "#ef4444"
+        ram_color = "#22c55e" if ram_pct < 50 else "#f59e0b" if ram_pct < 80 else "#ef4444"
+        disk_color = "#22c55e" if disk_pct < 70 else "#f59e0b" if disk_pct < 90 else "#ef4444"
+
+        def bar(pct, color):
+            filled = max(1, int(pct))
+            empty = max(0, 100 - filled)
+            return f"<table width='100%' cellspacing='0' cellpadding='0' style='margin:4px 0 14px 0;'><tr><td width='{filled}%' style='background:{color}; height:10px; border-radius:4px;'></td><td width='{empty}%' style='background:#1f2937; height:10px;'></td></tr></table>"
+
+        html = f"""
+        <div style='font-family: Segoe UI; color: #e6edf3; padding: 10px;'>
+
+            <div style='text-align: center; padding: 20px 0 14px 0;'>
+                <div style='font-size: 64px; font-weight: bold; color: {score_color};'>{score}</div>
+                <div style='font-size: 12px; color: #8b949e; margin-top: 2px;'>PC HEALTH SCORE</div>
+                <div style='font-size: 15px; font-weight: bold; color: {score_color}; margin-top: 10px;'>{status_msg}</div>
+            </div>
+
+            <hr style='border: none; border-top: 1px solid #30363d; margin: 16px 0;'>
+
+            <div style='padding: 0 6px;'>
+
+                <table width='100%' cellspacing='0' cellpadding='0' style='margin-bottom:2px;'>
+                    <tr>
+                        <td style='color:#8b949e; font-size:12px;'>💻 CPU Usage</td>
+                        <td align='right' style='color:{cpu_color}; font-size:12px; font-weight:bold;'>{cpu}%</td>
+                    </tr>
+                </table>
+                {bar(cpu, cpu_color)}
+
+                <table width='100%' cellspacing='0' cellpadding='0' style='margin-bottom:2px;'>
+                    <tr>
+                        <td style='color:#8b949e; font-size:12px;'>🧠 RAM Usage</td>
+                        <td align='right' style='color:{ram_color}; font-size:12px; font-weight:bold;'>{ram_used} GB / {ram_total} GB ({ram_pct}%)</td>
+                    </tr>
+                </table>
+                {bar(ram_pct, ram_color)}
+
+                <table width='100%' cellspacing='0' cellpadding='0' style='margin-bottom:2px;'>
+                    <tr>
+                        <td style='color:#8b949e; font-size:12px;'>💾 Disk Usage</td>
+                        <td align='right' style='color:{disk_color}; font-size:12px; font-weight:bold;'>{disk_used} GB / {disk_total} GB ({disk_pct}%)</td>
+                    </tr>
+                </table>
+                {bar(disk_pct, disk_color)}
+
+            </div>
+
+            <hr style='border: none; border-top: 1px solid #30363d; margin: 16px 0;'>
+
+            <div style='padding: 0 6px; color: #6b7280; font-size: 11px; line-height: 1.8;'>
+                <span style='color:#8b949e;'>System:</span> &nbsp;{data['system']}<br>
+                <span style='color:#8b949e;'>Machine:</span> &nbsp;{data['machine']}
+            </div>
+
+        </div>
+        """
+        self.output.setHtml(html)
+        self.title.setText("PC Health Dashboard")
+        self.status.setText("Live")
+        log_event("Dashboard", f"Score: {score} | CPU: {cpu}% | RAM: {ram_pct}% | Disk: {disk_pct}%")
+
+    def toggle_group(self, header, children, group_label):
+        if children[0].isVisible():
+            for btn in children:
+                btn.hide()
+            header.setText(f"▶  {group_label}")
+        else:
+            for btn in children:
+                btn.show()
+            header.setText(f"▼  {group_label}")
+
+    def set_active_btn(self, btn):
+        default_style = """
+            QPushButton {
+                background-color: #1f2937;
+                color: #e6edf3;
+                border: 1px solid #30363d;
+                border-radius: 6px;
+                padding: 12px 20px;
+                font-size: 14px;
+                font-weight: bold;
+            }
+            QPushButton:hover { background-color: #2563eb; border: 1px solid #2563eb; }
+        """
+        ask_style = """
+            QPushButton {
+                background-color: #16a34a;
+                color: white;
+                border: 1px solid #16a34a;
+                border-radius: 6px;
+                padding: 12px 20px;
+                font-size: 14px;
+                font-weight: bold;
+            }
+            QPushButton:hover { background-color: #15803d; }
+        """
+        active_style = """
+            QPushButton {
+                background-color: #2563eb;
+                color: white;
+                border: 1px solid #2563eb;
+                border-radius: 6px;
+                padding: 12px 20px;
+                font-size: 14px;
+                font-weight: bold;
+            }
+        """
+        for b in self.all_btns:
+            if b == self.ask_btn:
+                b.setStyleSheet(ask_style)
+            else:
+                b.setStyleSheet(default_style)
+        btn.setStyleSheet(active_style)
+        self.active_btn = btn
 
     def show_ask(self):
         self.title.setText("💬 Ask GetPCFixed")

@@ -88,5 +88,53 @@
         "time": "09:10 AM",
         "type": "Ask GetPCFixed",
         "details": "User asked: network slow"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "12:44 PM",
+        "type": "Scan",
+        "details": "CPU: 1.0% | RAM: 14.88GB | Disk: 93.79GB"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "12:44 PM",
+        "type": "AI Diagnosis",
+        "details": "Diagnosis run on LOSSLESS"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "12:55 PM",
+        "type": "Scan",
+        "details": "CPU: 1.2% | RAM: 14.85GB | Disk: 93.8GB"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "12:55 PM",
+        "type": "AI Diagnosis",
+        "details": "Diagnosis run on LOSSLESS"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "01:11 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 4.3% | RAM: 48% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "01:11 PM",
+        "type": "Scan",
+        "details": "CPU: 1.0% | RAM: 15.12GB | Disk: 93.8GB"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "01:13 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 5.4% | RAM: 48% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "01:14 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 5.5% | RAM: 48% | Disk: 10%"
     }
 ]
