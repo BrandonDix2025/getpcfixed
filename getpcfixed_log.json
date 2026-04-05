@@ -1,0 +1,86 @@
+[
+    {
+        "date": "2026-04-04",
+        "time": "08:57 PM",
+        "type": "Test",
+        "details": "Testing logger"
+    },
+    {
+        "date": "2026-04-04",
+        "time": "09:00 PM",
+        "type": "Scan",
+        "details": "CPU: 1.0% | RAM: 12.07GB of 31.74GB | Disk: 91.65GB of 952.58GB"
+    },
+    {
+        "date": "2026-04-04",
+        "time": "09:15 PM",
+        "type": "Scan",
+        "details": "CPU: 2.8% | RAM: 12.21GB | Disk: 91.85GB"
+    },
+    {
+        "date": "2026-04-04",
+        "time": "09:24 PM",
+        "type": "AI Diagnosis",
+        "details": "Diagnosis run on LOSSLESS"
+    },
+    {
+        "date": "2026-04-04",
+        "time": "09:31 PM",
+        "type": "AI Diagnosis",
+        "details": "Diagnosis run on LOSSLESS"
+    },
+    {
+        "date": "2026-04-04",
+        "time": "09:54 PM",
+        "type": "AI Diagnosis",
+        "details": "Diagnosis run on LOSSLESS"
+    },
+    {
+        "date": "2026-04-04",
+        "time": "09:55 PM",
+        "type": "Scan",
+        "details": "CPU: 4.4% | RAM: 12.78GB | Disk: 91.69GB"
+    },
+    {
+        "date": "2026-04-04",
+        "time": "09:59 PM",
+        "type": "Junk Clean",
+        "details": "Cleaned 340 files and freed up 19.65 MB"
+    },
+    {
+        "date": "2026-04-04",
+        "time": "10:03 PM",
+        "type": "Scan",
+        "details": "CPU: 1.1% | RAM: 12.48GB | Disk: 91.69GB"
+    },
+    {
+        "date": "2026-04-04",
+        "time": "10:03 PM",
+        "type": "Junk Clean",
+        "details": "Cleaned 9 files and freed up 19.76 MB"
+    },
+    {
+        "date": "2026-04-04",
+        "time": "10:03 PM",
+        "type": "AI Diagnosis",
+        "details": "Diagnosis run on LOSSLESS"
+    },
+    {
+        "date": "2026-04-04",
+        "time": "10:03 PM",
+        "type": "Scan",
+        "details": "CPU: 0.6% | RAM: 12.57GB | Disk: 91.7GB"
+    },
+    {
+        "date": "2026-04-04",
+        "time": "10:05 PM",
+        "type": "Scan",
+        "details": "CPU: 2.4% | RAM: 12.71GB | Disk: 91.7GB"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "07:59 AM",
+        "type": "AI Diagnosis",
+        "details": "Diagnosis run on LOSSLESS"
+    }
+]
