@@ -21,6 +21,7 @@ from updates import run_updates_scan, fix_updates
 from devices import run_devices_scan, fix_devices
 from diskhealth import run_diskhealth_scan, fix_disk
 from battery import run_battery_scan, fix_battery
+from monitor import start_monitor, stop_monitor, is_running, set_notify_callback
 
 load_dotenv()
 
@@ -283,6 +284,9 @@ class MainWindow(QMainWindow):
         """)
         self.build_ui()
         self.show_dashboard()
+        # Start Keep Me Running background monitor
+        set_notify_callback(self.on_monitor_alert)
+        start_monitor()
 
     def build_ui(self):
         central = QWidget()
@@ -415,6 +419,22 @@ class MainWindow(QMainWindow):
         self.status.setAlignment(Qt.AlignCenter)
         self.status.setStyleSheet("color: #8b949e; font-size: 12px; border: none;")
         sidebar_layout.addWidget(self.status)
+
+        self.monitor_btn = QPushButton("🟢  Keep Me Running: ON")
+        self.monitor_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #16a34a;
+                color: white;
+                border: 1px solid #16a34a;
+                border-radius: 6px;
+                padding: 8px;
+                font-size: 11px;
+                font-weight: bold;
+            }
+            QPushButton:hover { background-color: #15803d; }
+        """)
+        self.monitor_btn.clicked.connect(self.toggle_monitor)
+        sidebar_layout.addWidget(self.monitor_btn)
 
         main_layout.addWidget(sidebar)
 
@@ -581,6 +601,42 @@ class MainWindow(QMainWindow):
         self.title.setText("PC Health Dashboard")
         self.status.setText("Live")
         log_event("Dashboard", f"Score: {score} | CPU: {cpu}% | RAM: {ram_pct}% | Disk: {disk_pct}%")
+
+    def toggle_monitor(self):
+        if is_running():
+            stop_monitor()
+            self.monitor_btn.setText("🔴  Keep Me Running: OFF")
+            self.monitor_btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #374151;
+                    color: #9ca3af;
+                    border: 1px solid #374151;
+                    border-radius: 6px;
+                    padding: 8px;
+                    font-size: 11px;
+                    font-weight: bold;
+                }
+                QPushButton:hover { background-color: #4b5563; }
+            """)
+        else:
+            start_monitor()
+            self.monitor_btn.setText("🟢  Keep Me Running: ON")
+            self.monitor_btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #16a34a;
+                    color: white;
+                    border: 1px solid #16a34a;
+                    border-radius: 6px;
+                    padding: 8px;
+                    font-size: 11px;
+                    font-weight: bold;
+                }
+                QPushButton:hover { background-color: #15803d; }
+            """)
+
+    def on_monitor_alert(self, title, message):
+        """Called by monitor when an alert fires — updates status bar."""
+        self.status.setText(f"⚠️ {message[:40]}...")
 
     def toggle_group(self, header, children, group_label):
         if children[0].isVisible():
