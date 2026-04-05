@@ -1,4 +1,7 @@
 import sys
+import os
+import anthropic
+from dotenv import load_dotenv
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                               QHBoxLayout, QPushButton, QLabel, QTextEdit, QFrame)
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
@@ -9,6 +12,19 @@ from cleaner import scan_junk, clean_junk_silent
 from startup import get_startup_programs
 from logger import log_event, load_log
 from network import get_connection_type, check_internet, check_dns, check_gateway, ping_test, speed_test
+from wifi import run_wifi_scan
+from bsod import run_bsod_scan
+from crashes import run_crash_scan
+from malware import run_malware_scan
+from temps import run_temp_scan
+from updates import run_updates_scan
+from devices import run_devices_scan
+from diskhealth import run_diskhealth_scan
+from battery import run_battery_scan
+
+load_dotenv()
+
+
 class WorkerThread(QThread):
     result = pyqtSignal(str)
 
@@ -74,6 +90,33 @@ class WorkerThread(QThread):
                 result += "Speed Test      : Failed to complete"
             self.result.emit(result)
 
+        elif self.task == "wifi":
+            self.result.emit(run_wifi_scan())
+
+        elif self.task == "bsod":
+            self.result.emit(run_bsod_scan())
+
+        elif self.task == "crashes":
+            self.result.emit(run_crash_scan())
+
+        elif self.task == "malware":
+            self.result.emit(run_malware_scan())
+
+        elif self.task == "temps":
+            self.result.emit(run_temp_scan())
+
+        elif self.task == "updates":
+            self.result.emit(run_updates_scan())
+
+        elif self.task == "devices":
+            self.result.emit(run_devices_scan())
+
+        elif self.task == "diskhealth":
+            self.result.emit(run_diskhealth_scan())
+
+        elif self.task == "battery":
+            self.result.emit(run_battery_scan())
+
         elif self.task == "history":
             entries = load_log()
             if not entries:
@@ -86,11 +129,96 @@ class WorkerThread(QThread):
                 self.result.emit("\n".join(lines))
 
 
+class AskWorkerThread(QThread):
+    result = pyqtSignal(str)
+
+    def __init__(self, user_question):
+        super().__init__()
+        self.user_question = user_question
+
+    def run(self):
+        try:
+            data = scan_system_data()
+            prompt = f"""
+You are GetPCFixed — a friendly, plain-English PC repair expert.
+
+The user described their problem as:
+"{self.user_question}"
+
+Here is their current PC health data:
+- CPU Usage: {data['cpu']}%
+- RAM Used: {data['ram_used']} GB of {data['ram_total']} GB
+- Disk Used: {data['disk_used']} GB of {data['disk_total']} GB
+- System: {data['system']}
+- Machine: {data['machine']}
+
+Based on their problem and their PC data:
+1. Tell them in plain English what you think is wrong
+2. Tell them exactly what you would do to fix it
+3. End with: "Want me to fix this for you?"
+
+Keep it friendly, simple, and short. No technical jargon. Talk like a helpful neighbor, not a manual.
+"""
+            client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+            response = client.messages.create(
+                model="claude-opus-4-5",
+                max_tokens=1024,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            result = response.content[0].text
+            log_event("Ask GetPCFixed", f"User asked: {self.user_question[:60]}")
+            self.result.emit(result)
+        except Exception as e:
+            self.result.emit(f"Something went wrong: {e}")
+
+
+class FixDecisionThread(QThread):
+    decision = pyqtSignal(str)
+
+    def __init__(self, user_question, diagnosis):
+        super().__init__()
+        self.user_question = user_question
+        self.diagnosis = diagnosis
+
+    def run(self):
+        try:
+            prompt = f"""
+The user described their PC problem as:
+"{self.user_question}"
+
+The diagnosis was:
+"{self.diagnosis}"
+
+Based on this, which ONE fix should be run?
+Reply with ONLY one of these exact words, nothing else:
+- clean       (if junk files, disk space, or slow PC is the issue)
+- startup     (if too many startup programs or slow boot is the issue)
+- network     (if internet, WiFi, or connection is the issue)
+- scan        (if the problem is unclear or general performance)
+
+Reply with only the single word.
+"""
+            client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+            response = client.messages.create(
+                model="claude-opus-4-5",
+                max_tokens=10,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            decision = response.content[0].text.strip().lower()
+            if decision not in ["clean", "startup", "network", "scan"]:
+                decision = "scan"
+            self.decision.emit(decision)
+        except Exception as e:
+            self.decision.emit("scan")
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("GetPCFixed")
         self.setMinimumSize(700, 500)
+        self.last_diagnosis = ""
+        self.last_question = ""
         self.setStyleSheet("""
             QMainWindow { background-color: #0d1117; }
             QWidget { background-color: #0d1117; color: #e6edf3; }
@@ -142,12 +270,38 @@ class MainWindow(QMainWindow):
         sidebar_layout.addWidget(line)
         sidebar_layout.addSpacing(10)
 
+        ask_btn = QPushButton("💬 Ask GetPCFixed")
+        ask_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #2563eb;
+                color: white;
+                border: 1px solid #2563eb;
+                border-radius: 6px;
+                padding: 12px 20px;
+                font-size: 14px;
+                font-weight: bold;
+            }
+            QPushButton:hover { background-color: #1d4ed8; }
+        """)
+        ask_btn.clicked.connect(self.show_ask)
+        sidebar_layout.addWidget(ask_btn)
+        sidebar_layout.addSpacing(6)
+
         buttons = [
             ("Scan My PC", "scan"),
             ("AI Diagnosis", "diagnose"),
             ("Clean Junk Files", "junk"),
             ("Fix Startup", "startup"),
             ("Network Diagnostic", "network"),
+            ("WiFi Issues", "wifi"),
+            ("Blue Screen (BSOD)", "bsod"),
+            ("App Crashes", "crashes"),
+            ("Malware Check", "malware"),
+            ("Overheating", "temps"),
+            ("Windows Updates", "updates"),
+            ("Devices & USB", "devices"),
+            ("Disk Health", "diskhealth"),
+            ("Battery", "battery"),
             ("View History", "history"),
             ("About", "about"),
         ]
@@ -168,26 +322,108 @@ class MainWindow(QMainWindow):
 
         content = QFrame()
         content.setStyleSheet("QFrame { border: 1px solid #30363d; border-radius: 8px; }")
-        content_layout = QVBoxLayout(content)
-        content_layout.setContentsMargins(16, 16, 16, 16)
+        self.content_layout = QVBoxLayout(content)
+        self.content_layout.setContentsMargins(16, 16, 16, 16)
 
         self.title = QLabel("Welcome to GetPCFixed")
         self.title.setFont(QFont("Segoe UI", 16, QFont.Bold))
         self.title.setStyleSheet("color: #e6edf3; border: none;")
-        content_layout.addWidget(self.title)
+        self.content_layout.addWidget(self.title)
+
         self.clean_btn = QPushButton("Clean Now")
         self.clean_btn.setStyleSheet("background-color: #16a34a; color: white; font-size: 14px; padding: 10px; border-radius: 6px;")
         self.clean_btn.clicked.connect(lambda: self.run_task("clean"))
         self.clean_btn.hide()
-        content_layout.addWidget(self.clean_btn)
+        self.content_layout.addWidget(self.clean_btn)
+
+        self.ask_input = QTextEdit()
+        self.ask_input.setPlaceholderText("Describe your problem here... (e.g. My computer is really slow when I open Chrome)")
+        self.ask_input.setMaximumHeight(100)
+        self.ask_input.hide()
+        self.content_layout.addWidget(self.ask_input)
+
+        self.ask_hint = QLabel("If we find a solution, we'll let you know.")
+        self.ask_hint.setStyleSheet("color: #8b949e; font-size: 12px; border: none; padding: 2px 0px;")
+        self.ask_hint.hide()
+        self.content_layout.addWidget(self.ask_hint)
+
+        self.ask_now_btn = QPushButton("Ask Now")
+        self.ask_now_btn.setStyleSheet("background-color: #2563eb; color: white; font-size: 14px; padding: 10px; border-radius: 6px;")
+        self.ask_now_btn.clicked.connect(self.run_ask)
+        self.ask_now_btn.hide()
+        self.content_layout.addWidget(self.ask_now_btn)
+
+        self.fix_btn = QPushButton("✅ Yes, Fix It!")
+        self.fix_btn.setStyleSheet("background-color: #16a34a; color: white; font-size: 14px; padding: 10px; border-radius: 6px;")
+        self.fix_btn.clicked.connect(self.run_fix)
+        self.fix_btn.hide()
+        self.content_layout.addWidget(self.fix_btn)
+
         self.output = QTextEdit()
         self.output.setReadOnly(True)
         self.output.setText("Select an option from the left to get started.\n\nGetPCFixed will scan, diagnose, and fix your PC — always asking before changing anything.")
-        content_layout.addWidget(self.output)
+        self.content_layout.addWidget(self.output)
 
         main_layout.addWidget(content)
 
+    def show_ask(self):
+        self.title.setText("💬 Ask GetPCFixed")
+        self.clean_btn.hide()
+        self.fix_btn.hide()
+        self.ask_input.show()
+        self.ask_input.clear()
+        self.ask_hint.show()
+        self.ask_now_btn.show()
+        self.output.setText("Describe your problem above and click Ask Now.\n\nGetPCFixed will scan your PC and tell you exactly what's wrong.")
+        self.status.setText("Ready")
+
+    def run_ask(self):
+        question = self.ask_input.toPlainText().strip()
+        if not question:
+            self.output.setText("Please describe your problem first!")
+            return
+        self.last_question = question
+        self.fix_btn.hide()
+        self.status.setText("Working...")
+        self.output.setText("Scanning your PC and thinking about your problem...\nThis will take just a moment.")
+        self.ask_worker = AskWorkerThread(question)
+        self.ask_worker.result.connect(self.show_ask_result)
+        self.ask_worker.start()
+
+    def show_ask_result(self, text):
+        self.last_diagnosis = text
+        self.output.setText(text)
+        self.fix_btn.show()
+        self.status.setText("Done")
+
+    def run_fix(self):
+        self.fix_btn.hide()
+        self.status.setText("Figuring out the best fix...")
+        self.output.setText("Got it! Let me figure out the best fix for you...\nOne moment.")
+        self.fix_decision_worker = FixDecisionThread(self.last_question, self.last_diagnosis)
+        self.fix_decision_worker.decision.connect(self.execute_fix)
+        self.fix_decision_worker.start()
+
+    def execute_fix(self, task):
+        fix_labels = {
+            "clean": "Running Junk File Cleaner",
+            "startup": "Checking Startup Programs",
+            "network": "Running Network Diagnostic",
+            "scan": "Running Full System Scan"
+        }
+        self.title.setText(fix_labels.get(task, "Running Fix"))
+        self.status.setText("Fixing...")
+        self.output.setText(f"Running the fix now...\nPlease wait.")
+        self.worker = WorkerThread(task)
+        self.worker.result.connect(self.show_result)
+        self.worker.start()
+        log_event("Yes Fix It", f"Ran {task} after Ask diagnosis")
+
     def run_task(self, task):
+        self.ask_input.hide()
+        self.ask_hint.hide()
+        self.ask_now_btn.hide()
+        self.fix_btn.hide()
         self.status.setText("Working...")
         self.output.setText("Please wait...")
 
@@ -205,6 +441,15 @@ class MainWindow(QMainWindow):
             "junk": "Junk File Scanner",
             "clean": "Junk File Cleaner",
             "network": "Network Diagnostic",
+            "wifi": "WiFi Diagnostic",
+            "bsod": "Blue Screen (BSOD) Report",
+            "crashes": "App Crash & Freeze Check",
+            "malware": "Malware & Security Check",
+            "temps": "Overheating Check",
+            "updates": "Windows Update Check",
+            "devices": "Devices & USB Check",
+            "diskhealth": "Disk Health Check",
+            "battery": "Battery Diagnostic",
             "history": "History Log"
         }.get(task, "GetPCFixed"))
 
@@ -248,7 +493,7 @@ class MainWindow(QMainWindow):
     def show_about(self):
         self.title.setText("About GetPCFixed")
         self.output.setText(
-            "GetPCFixed v0.4\n\n"
+            "GetPCFixed v0.5\n\n"
             "Your PC deserves better than error messages and slow boots.\n\n"
             "GetPCFixed detects, diagnoses, and fixes the most common Windows\n"
             "problems everyday people face — always asking before changing anything.\n\n"
@@ -256,7 +501,7 @@ class MainWindow(QMainWindow):
             "getpcfixed.com | getpcfixed.app\n\n"
             "Built with Python + Claude AI"
         )
-        self.status.setText("v0.4")
+        self.status.setText("v0.5")
 
 
 if __name__ == "__main__":
