@@ -166,5 +166,197 @@
         "time": "01:40 PM",
         "type": "Dashboard",
         "details": "Score: 100 | CPU: 6.0% | RAM: 48% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "02:35 PM",
+        "type": "Keep Me Running",
+        "details": "Background monitor started \u2014 checking every 5 minutes"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "02:35 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 7.0% | RAM: 47% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "02:35 PM",
+        "type": "Scan",
+        "details": "CPU: 1.4% | RAM: 14.78GB | Disk: 94.63GB"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "02:36 PM",
+        "type": "AI Diagnosis",
+        "details": "Diagnosis run on LOSSLESS"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "02:51 PM",
+        "type": "Keep Me Running",
+        "details": "Background monitor started \u2014 checking every 5 minutes"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "02:51 PM",
+        "type": "Dashboard",
+        "details": "Score: 85 | CPU: 10.2% | RAM: 51% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "02:52 PM",
+        "type": "Scan",
+        "details": "CPU: 5.8% | RAM: 16.14GB | Disk: 96.12GB"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "02:52 PM",
+        "type": "AI Diagnosis",
+        "details": "Diagnosis run on LOSSLESS"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "03:11 PM",
+        "type": "Keep Me Running",
+        "details": "Background monitor started \u2014 checking every 5 minutes"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "03:11 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 13.1% | RAM: 42% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "03:11 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 6.6% | RAM: 42% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "03:12 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 11.2% | RAM: 42% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "03:12 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 11.9% | RAM: 42% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "03:12 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 5.6% | RAM: 42% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "03:12 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 10.0% | RAM: 42% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "03:14 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 9.0% | RAM: 42% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "03:56 PM",
+        "type": "Keep Me Running",
+        "details": "Background monitor started \u2014 checking every 5 minutes"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "03:56 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 5.4% | RAM: 39% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "03:57 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 0.8% | RAM: 39% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "04:04 PM",
+        "type": "Keep Me Running",
+        "details": "Background monitor started \u2014 checking every 5 minutes"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "04:04 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 5.9% | RAM: 39% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "04:04 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 2.4% | RAM: 39% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "04:05 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 2.3% | RAM: 39% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "04:12 PM",
+        "type": "Keep Me Running",
+        "details": "Background monitor started \u2014 checking every 5 minutes"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "04:12 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 6.1% | RAM: 39% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "04:13 PM",
+        "type": "Keep Me Running",
+        "details": "Background monitor started \u2014 checking every 5 minutes"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "04:13 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 6.1% | RAM: 39% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "04:14 PM",
+        "type": "Keep Me Running",
+        "details": "Background monitor started \u2014 checking every 5 minutes"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "04:14 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 6.9% | RAM: 40% | Disk: 10%"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "04:16 PM",
+        "type": "Junk Clean",
+        "details": "Cleaned 515 files and freed up 97.59 MB"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "04:20 PM",
+        "type": "Keep Me Running",
+        "details": "Background monitor started \u2014 checking every 5 minutes"
+    },
+    {
+        "date": "2026-04-05",
+        "time": "04:20 PM",
+        "type": "Dashboard",
+        "details": "Score: 100 | CPU: 5.8% | RAM: 40% | Disk: 10%"
     }
 ]
