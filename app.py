@@ -9,7 +9,7 @@ from PyQt5.QtGui import QFont
 from scanner import scan_system_data
 from diagnose import diagnose as run_diagnosis
 from cleaner import scan_junk, clean_junk_silent
-from startup import get_startup_programs
+from startup import get_startup_programs, disable_startup_program
 from logger import log_event, load_log
 from network import get_connection_type, check_internet, check_dns, check_gateway, ping_test, speed_test, fix_network
 from wifi import run_wifi_scan
@@ -830,6 +830,23 @@ class MainWindow(QMainWindow):
         self.output.setReadOnly(True)
         self.output.setText("Loading dashboard...")
         out_vb.addWidget(self.output)
+
+        # Startup panel — swaps in place of output on startup page
+        self.startup_scroll = QScrollArea()
+        self.startup_scroll.setWidgetResizable(True)
+        self.startup_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.startup_scroll.setStyleSheet("""
+            QScrollArea { border: none; background: transparent; }
+            QScrollBar:vertical { background: transparent; width: 4px; }
+            QScrollBar::handle:vertical {
+                background: #3a3a3a; border-radius: 2px; min-height: 20px;
+            }
+            QScrollBar::handle:vertical:hover { background: #606060; }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
+            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: transparent; }
+        """)
+        self.startup_scroll.hide()
+        out_vb.addWidget(self.startup_scroll)
         cv.addWidget(out_frame)
 
         root.addWidget(content_wrap)
@@ -984,6 +1001,8 @@ class MainWindow(QMainWindow):
         self.ask_hint.hide()
         self.ask_now_btn.hide()
         self.repair_btn.hide()
+        self.startup_scroll.hide()
+        self.output.show()
         self.set_nav_active(self.dash_nav_btn)
         self.output.setHtml(self._msg_html("Scanning your PC..."))
         self.status.setText("\u25cf  Scanning...")
@@ -1171,6 +1190,8 @@ class MainWindow(QMainWindow):
         self.clean_btn.hide()
         self.fix_btn.hide()
         self.repair_btn.hide()
+        self.startup_scroll.hide()
+        self.output.show()
         self.ask_input.show()
         self.ask_input.clear()
         self.ask_hint.show()
@@ -1319,36 +1340,142 @@ class MainWindow(QMainWindow):
         self.status.setText("\u25cf  Done")
 
     def show_startup(self):
+        self._page = 'startup'
         self.title.setText("Startup Programs")
+        self.clean_btn.hide()
+        self.fix_btn.hide()
+        self.repair_btn.hide()
+        self.ask_input.hide()
+        self.ask_hint.hide()
+        self.ask_now_btn.hide()
+        self.output.hide()
+        self.startup_scroll.show()
+
         programs = get_startup_programs()
+        t = self.theme
+
+        container = QWidget()
+        container.setStyleSheet("background: transparent;")
+        vbox = QVBoxLayout(container)
+        vbox.setContentsMargins(2, 4, 8, 8)
+        vbox.setSpacing(8)
+
         if not programs:
-            self.output.setHtml(self._msg_html("No startup programs found."))
-            self.status.setText("\u25cf  Done")
-            return
-        rows = ""
-        for i, p in enumerate(programs):
-            rows += (
-                f"<tr>"
-                f"<td style='padding:10px 0 4px 0; color:#ffffff; "
-                f"font-size:13px; font-weight:600;'>{i+1}.&nbsp;&nbsp;{p['name']}</td>"
-                f"</tr>"
-                f"<tr>"
-                f"<td style='padding:0 0 10px 20px; color:#606060; "
-                f"font-size:11px; border-bottom:1px solid #2a2a2a;'>{p['path']}</td>"
-                f"</tr>"
+            empty = QLabel("No startup programs found.")
+            empty.setStyleSheet(
+                f"color:{t['msg_text']}; font-size:13px; border:none; background:transparent;"
             )
-        html = f"""
-        <div style='font-family: Segoe UI, Arial, sans-serif; padding: 2px;'>
-            <div style='color:#606060; font-size:11px; letter-spacing:1px;
-                        margin-bottom:12px;'>PROGRAMS THAT LOAD ON STARTUP</div>
-            <table width='100%' cellspacing='0' cellpadding='0'>{rows}</table>
-            <div style='color:#505050; font-size:11px; margin-top:14px;'>
-                Full disable controls coming soon.
-            </div>
-        </div>
-        """
-        self.output.setHtml(html)
+            vbox.addWidget(empty)
+        else:
+            hdr_lbl = QLabel(
+                f"PROGRAMS THAT LOAD ON WINDOWS STARTUP  \u2022  {len(programs)} found"
+            )
+            hdr_lbl.setFont(QFont("Segoe UI", 10))
+            hdr_lbl.setStyleSheet(
+                f"color:{t['sub_color']}; border:none; background:transparent; letter-spacing:1px;"
+            )
+            vbox.addWidget(hdr_lbl)
+            vbox.addSpacing(4)
+
+            for prog in programs:
+                card = QFrame()
+                card.setStyleSheet(f"""
+                    QFrame {{
+                        background-color: {t['card_bg']};
+                        border: 1px solid {t['card_border']};
+                        border-radius: 8px;
+                    }}
+                """)
+                row = QHBoxLayout(card)
+                row.setContentsMargins(16, 12, 12, 12)
+                row.setSpacing(12)
+
+                info_col = QVBoxLayout()
+                info_col.setSpacing(3)
+
+                name_lbl = QLabel(prog['name'])
+                name_lbl.setFont(QFont("Segoe UI", 12, QFont.Bold))
+                name_lbl.setStyleSheet(
+                    f"color:{t['output_text']}; border:none; background:transparent;"
+                )
+                info_col.addWidget(name_lbl)
+
+                path_lbl = QLabel(prog['path'])
+                path_lbl.setFont(QFont("Segoe UI", 9))
+                path_lbl.setStyleSheet(
+                    f"color:{t['sub_color']}; border:none; background:transparent;"
+                )
+                path_lbl.setWordWrap(True)
+                info_col.addWidget(path_lbl)
+                row.addLayout(info_col, stretch=1)
+
+                dis_btn = QPushButton("Disable")
+                dis_btn.setFixedWidth(90)
+                dis_btn.setFixedHeight(32)
+                dis_btn.setCursor(Qt.PointingHandCursor)
+                dis_btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: #c42b1c;
+                        color: white; border: none; border-radius: 6px;
+                        font-size: 12px; font-weight: 600;
+                        font-family: 'Segoe UI';
+                    }
+                    QPushButton:hover { background-color: #e03226; }
+                """)
+                dis_btn.clicked.connect(
+                    lambda checked, p=prog, b=dis_btn, nl=name_lbl:
+                    self.disable_startup_item(p, b, nl)
+                )
+                row.addWidget(dis_btn)
+                vbox.addWidget(card)
+
+        vbox.addStretch()
+        self.startup_scroll.setWidget(container)
         self.status.setText("\u25cf  Done")
+
+    def disable_startup_item(self, program, btn, name_lbl):
+        """Two-click confirm pattern: Disable → Confirm? → Disabled."""
+        if btn.text() == "Disable":
+            btn.setText("Confirm?")
+            btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #d4a017;
+                    color: white; border: none; border-radius: 6px;
+                    font-size: 11px; font-weight: 600;
+                    font-family: 'Segoe UI';
+                }
+                QPushButton:hover { background-color: #e6b020; }
+            """)
+        else:
+            success = disable_startup_program(program)
+            if success:
+                btn.setText("\u2713  Disabled")
+                btn.setEnabled(False)
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: transparent;
+                        color: #505050;
+                        border: 1px solid #2e2e2e;
+                        border-radius: 6px;
+                        font-size: 11px; font-weight: 600;
+                        font-family: 'Segoe UI';
+                    }
+                """)
+                name_lbl.setStyleSheet(
+                    "color: #505050; border: none; background: transparent;"
+                    " text-decoration: line-through;"
+                )
+                log_event("Startup Disabled", f"Disabled {program['name']} from startup")
+            else:
+                btn.setText("Failed!")
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: #c42b1c;
+                        color: white; border: none; border-radius: 6px;
+                        font-size: 11px; font-weight: 600;
+                        font-family: 'Segoe UI';
+                    }
+                """)
 
     def show_about(self):
         self.title.setText("About GetPCFixed")
