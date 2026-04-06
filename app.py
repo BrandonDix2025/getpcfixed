@@ -25,6 +25,7 @@ from monitor import start_monitor, stop_monitor, is_running, set_notify_callback
 from tray import start_tray, set_open_callback
 from autostart import is_autostart_enabled, enable_autostart
 from gamermode import launch_gamer_mode
+from updater import check_for_update, set_update_callback, download_and_run
 
 # Find .env whether running as .exe or as Python script
 if getattr(sys, 'frozen', False):
@@ -375,6 +376,9 @@ class MainWindow(QMainWindow):
         self.show_dashboard()
         set_notify_callback(self.on_monitor_alert)
         start_monitor()
+        # Start update check in background
+        set_update_callback(self._on_update_available)
+        check_for_update()
 
     # ── Theme CSS ────────────────────────────────────────────────────
     def _global_css(self):
@@ -404,6 +408,33 @@ class MainWindow(QMainWindow):
             }}
             QScrollArea {{ border: none; background: transparent; }}
         """
+
+    # ── Update handler ───────────────────────────────────────────────────────
+    def _on_update_available(self, tag, name, url):
+        """Called from background thread when a newer version is found."""
+        from PyQt5.QtCore import QMetaObject, Qt as _Qt
+        # Must update UI on the main thread
+        self._pending_update = (tag, name, url)
+        QMetaObject.invokeMethod(self, "_show_update_banner", _Qt.QueuedConnection)
+
+    from PyQt5.QtCore import pyqtSlot
+
+    @pyqtSlot()
+    def _show_update_banner(self):
+        tag, name, url = self._pending_update
+        self._update_label.setText(f"\u2b06  Update available \u2014 {tag} is ready.")
+        self._update_btn.clicked.connect(lambda: self._run_update(url, tag))
+        self._update_banner.show()
+
+    def _run_update(self, url, tag):
+        self._update_btn.setText("Downloading...")
+        self._update_btn.setDisabled(True)
+        try:
+            download_and_run(url, tag)
+        except Exception as e:
+            self._update_label.setText(f"Download failed: {e}")
+            self._update_btn.setText("Download now \u2192")
+            self._update_btn.setDisabled(False)
 
     # ── Nav helper styles ──────────────────────────────────────────────────
     def _nav_default(self):
@@ -746,7 +777,44 @@ class MainWindow(QMainWindow):
         hdr_l.addWidget(self.theme_btn)
         cv.addWidget(hdr)
 
-        # Action button row (shown contextually)
+        # ── Update banner (hidden until update is available) ──────────────────
+        self._update_banner = QFrame()
+        self._update_banner.setFixedHeight(44)
+        self._update_banner.setStyleSheet("""
+            QFrame {
+                background-color: rgba(14,163,104,0.15);
+                border: none;
+                border-bottom: 1px solid rgba(14,163,104,0.35);
+            }
+        """)
+        banner_l = QHBoxLayout(self._update_banner)
+        banner_l.setContentsMargins(28, 0, 28, 0)
+        self._update_label = QLabel("")
+        self._update_label.setStyleSheet(
+            "color: #0ea368; font-size: 13px; font-weight: 600;"
+            " font-family: 'Segoe UI'; border: none; background: transparent;"
+        )
+        banner_l.addWidget(self._update_label)
+        banner_l.addStretch()
+        self._update_btn = QPushButton("Download now \u2192")
+        self._update_btn.setCursor(Qt.PointingHandCursor)
+        self._update_btn.setFixedHeight(28)
+        self._update_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #0ea368;
+                color: #ffffff;
+                border: none;
+                border-radius: 6px;
+                padding: 0px 14px;
+                font-size: 12px;
+                font-weight: 600;
+                font-family: 'Segoe UI';
+            }
+            QPushButton:hover { background-color: #0b8a56; }
+        """)
+        banner_l.addWidget(self._update_btn)
+        self._update_banner.hide()
+        cv.addWidget(self._update_banner)
         act_frame = QFrame()
         act_frame.setStyleSheet("background: transparent; border: none;")
         self.act_row = QHBoxLayout(act_frame)
