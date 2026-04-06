@@ -28,21 +28,18 @@ def set_notify_callback(fn):
 
 
 def _notify(title, message):
-    """Fire a Windows taskbar notification."""
+    """Fire a Windows toast notification via plyer."""
     try:
-        from win10toast import ToastNotifier
-        toaster = ToastNotifier()
-        toaster.show_toast(
-            title,
-            message,
-            icon_path=None,
-            duration=8,
-            threaded=True
+        from plyer import notification
+        notification.notify(
+            title=title,
+            message=message,
+            app_name="GetPCFixed",
+            timeout=8
         )
         log_event("Keep Me Running", f"{title}: {message}")
     except ImportError:
-        # win10toast not installed — fall back to callback
-        log_event("Keep Me Running", f"{title}: {message}")
+        log_event("Keep Me Running", f"[plyer not installed] {title}: {message}")
     except Exception as e:
         log_event("Keep Me Running Error", str(e))
 

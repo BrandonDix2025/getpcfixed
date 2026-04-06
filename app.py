@@ -22,6 +22,8 @@ from devices import run_devices_scan, fix_devices
 from diskhealth import run_diskhealth_scan, fix_disk
 from battery import run_battery_scan, fix_battery
 from monitor import start_monitor, stop_monitor, is_running, set_notify_callback
+from tray import start_tray, set_open_callback
+from autostart import is_autostart_enabled, enable_autostart
 
 # Find .env whether running as .exe or as Python script
 if getattr(sys, 'frozen', False):
@@ -1766,5 +1768,20 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setFont(QFont("Segoe UI", 10))
     window = MainWindow()
+
+    # Wire tray icon open callback to bring window to front
+    set_open_callback(lambda: (window.show(), window.raise_(), window.activateWindow()))
+
+    # Start background monitor
+    set_notify_callback(lambda title, msg: None)  # app handles in-app alerts separately
+    start_monitor()
+
+    # Start system tray icon
+    start_tray()
+
+    # Enable autostart at boot on first run
+    if not is_autostart_enabled():
+        enable_autostart()
+
     window.show()
     sys.exit(app.exec_())
