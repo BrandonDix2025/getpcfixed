@@ -14,6 +14,7 @@ Compression=lzma2/ultra64
 SolidCompression=yes
 PrivilegesRequired=admin
 UninstallDisplayName=GetPCFixed - AI PC Repair
+SetupIconFile=logo.ico
 UninstallDisplayIcon={app}\GetPCFixed.exe
 
 [Languages]
