@@ -4,3 +4,6 @@ build/
 dist/
 *.spec
 getpcfixed_log.json
+protected/
+pyarmor-regfile-12086.zip
+installer_output/
