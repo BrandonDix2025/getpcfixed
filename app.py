@@ -1,7 +1,6 @@
 import sys
 import os
 import anthropic
-from dotenv import load_dotenv
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                               QHBoxLayout, QPushButton, QLabel, QTextEdit, QFrame, QScrollArea)
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
@@ -29,7 +28,6 @@ if getattr(sys, 'frozen', False):
 else:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 
 class WorkerThread(QThread):
