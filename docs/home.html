@@ -438,6 +438,99 @@
     .trust-text { font-size: 14px; color: var(--text-body); line-height: 1.7; }
     .trust-text strong { color: var(--green-deep); font-weight: 500; }
 
+    /* ── PRICING ── */
+    .pricing { background: var(--mint-bg); }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .price-card {
+      background: var(--white);
+      border: 1px solid var(--mint-border);
+      border-radius: 16px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+
+    .price-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.07); }
+
+    .price-card.featured {
+      border-color: var(--green-main);
+      box-shadow: 0 4px 20px rgba(59,109,17,0.12);
+    }
+
+    .price-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--green-main);
+      color: #EAF3DE;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 14px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .price-name { font-size: 13px; font-weight: 500; color: var(--green-label); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .price-amount { font-family: 'DM Serif Display', serif; font-size: 40px; color: var(--green-dark); line-height: 1; }
+    .price-amount span { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text-muted); font-weight: 400; }
+    .price-tagline { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
+
+    .price-divider { border: none; border-top: 1px solid var(--mint-border); margin: 10px 0; }
+
+    .price-features { list-style: none; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .price-features li { font-size: 13px; color: var(--text-body); display: flex; gap: 8px; align-items: flex-start; }
+    .price-features li::before { content: '✓'; color: var(--green-main); font-weight: 600; flex-shrink: 0; }
+    .price-features li.muted { color: var(--text-hint); }
+    .price-features li.muted::before { content: '—'; color: var(--text-hint); }
+
+    .price-btn {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      padding: 13px 20px;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+      cursor: pointer;
+      border: none;
+    }
+
+    .price-btn.outline {
+      background: transparent;
+      border: 1px solid var(--mint-border);
+      color: var(--green-deep);
+    }
+    .price-btn.outline:hover { background: var(--mint-light); }
+
+    .price-btn.solid {
+      background: var(--green-main);
+      color: #EAF3DE;
+    }
+    .price-btn.solid:hover { background: var(--green-deep); transform: translateY(-1px); }
+
+    .price-btn.gamer {
+      background: var(--green-dark);
+      color: #97C459;
+    }
+    .price-btn.gamer:hover { background: #0d1f02; transform: translateY(-1px); }
+
+    .pricing-note { text-align: center; font-size: 12px; color: var(--text-hint); margin-top: 20px; }
+
     /* ── DOWNLOAD CTA ── */
     .download-cta {
       background: var(--green-deep);
@@ -791,6 +884,74 @@
         <div class="trust-text"><strong>AI explains the why</strong> — not just "fixed." You learn what happened so you feel confident, not confused.</div>
       </div>
     </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing" id="pricing">
+    <div class="section-inner" style="text-align:center;">
+      <p class="section-label">Pricing</p>
+      <h2 class="section-title">Simple, honest pricing</h2>
+      <p class="section-sub" style="margin:0 auto 36px;">Start free. Upgrade when you're ready. No tricks, no fake problem counts.</p>
+      <div class="pricing-grid">
+
+        <!-- FREE -->
+        <div class="price-card">
+          <p class="price-name">Free</p>
+          <div class="price-amount">$0 <span>forever</span></div>
+          <p class="price-tagline">Try it — no credit card needed</p>
+          <hr class="price-divider">
+          <ul class="price-features">
+            <li>1 AI scan per week</li>
+            <li>PC health score</li>
+            <li>Plain-English diagnosis</li>
+            <li class="muted">Unlimited scans</li>
+            <li class="muted">Auto-repair</li>
+            <li class="muted">Fix history &amp; undo</li>
+            <li class="muted">Gamer Mode</li>
+          </ul>
+          <a href="#download" class="price-btn outline">Download Free</a>
+        </div>
+
+        <!-- PRO -->
+        <div class="price-card featured">
+          <div class="price-badge">Most Popular</div>
+          <p class="price-name">Pro</p>
+          <div class="price-amount">$4.99 <span>/ month</span></div>
+          <p class="price-tagline">Everything your PC needs</p>
+          <hr class="price-divider">
+          <ul class="price-features">
+            <li>Unlimited AI scans</li>
+            <li>PC health score</li>
+            <li>Plain-English diagnosis</li>
+            <li>Auto-repair with permission</li>
+            <li>Full fix history &amp; one-click undo</li>
+            <li>Priority support</li>
+            <li class="muted">Gamer Mode</li>
+          </ul>
+          <a href="#STRIPE_PRO_LINK" class="price-btn solid">Get Pro — $4.99/mo</a>
+        </div>
+
+        <!-- GAMER -->
+        <div class="price-card">
+          <p class="price-name">Gamer</p>
+          <div class="price-amount">$9.99 <span>/ month</span></div>
+          <p class="price-tagline">Built for performance</p>
+          <hr class="price-divider">
+          <ul class="price-features">
+            <li>Everything in Pro</li>
+            <li>Real-time FPS overlay</li>
+            <li>Live temp monitor</li>
+            <li>One-click RAM clear</li>
+            <li>Background process killer</li>
+            <li>Gamer Mode dashboard</li>
+            <li>Priority support</li>
+          </ul>
+          <a href="#STRIPE_GAMER_LINK" class="price-btn gamer">Get Gamer — $9.99/mo</a>
+        </div>
+
+      </div>
+      <p class="pricing-note">Cancel anytime. No contracts. Secure payments via Stripe.</p>
     </div>
   </section>
 
