@@ -3,6 +3,7 @@ import sys
 import anthropic
 from scanner import scan_system_data
 from logger import log_event
+from ratelimit import can_scan, record_scan
 
 if getattr(sys, 'frozen', False):
     BASE_DIR = sys._MEIPASS
@@ -10,6 +11,10 @@ else:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def diagnose():
+    allowed, msg = can_scan()
+    if not allowed:
+        return msg
+
     data = scan_system_data()
     message = f"""
     You are a PC repair expert. Analyze this Windows PC health data and give a plain English diagnosis.
@@ -32,6 +37,7 @@ def diagnose():
     )
 
     result = response.content[0].text
+    record_scan()
     log_event("AI Diagnosis", f"Diagnosis run on {data['machine']}")
     return result
 

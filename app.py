@@ -1,6 +1,7 @@
 import sys
 import os
 import anthropic
+from ratelimit import can_scan, record_scan
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                               QHBoxLayout, QPushButton, QLabel, QTextEdit, QFrame, QScrollArea)
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
@@ -170,6 +171,11 @@ class AskWorkerThread(QThread):
 
     def run(self):
         try:
+            allowed, msg = can_scan()
+            if not allowed:
+                self.result.emit(msg)
+                return
+
             data = scan_system_data()
             prompt = f"""
 You are GetPCFixed — a friendly, plain-English PC repair expert.
@@ -200,6 +206,7 @@ Keep it friendly, simple, and short. No technical jargon. Talk like a helpful ne
                 messages=[{"role": "user", "content": prompt}]
             )
             result = response.content[0].text
+            record_scan()
             log_event("Ask GetPCFixed", f"User asked: {self.user_question[:60]}")
             self.result.emit(result)
         except Exception as e:
@@ -1232,11 +1239,43 @@ class MainWindow(QMainWindow):
         self.ask_worker.result.connect(self.show_ask_result)
         self.ask_worker.start()
 
+    def _rate_limit_html(self):
+        t = self.theme
+        return f"""
+        <div style='font-family: Segoe UI, Arial, sans-serif; padding: 80px 8px 24px 8px; text-align: center;'>
+            <div style='font-size: 52px; margin-bottom: 16px;'>⏳</div>
+            <div style='font-size: 26px; font-weight: 700; color: #d4a017; margin-bottom: 14px;'>
+                Weekly Scan Limit Reached
+            </div>
+            <div style='font-size: 16px; color: {t['output_text']}; line-height: 1.9; margin-bottom: 24px;'>
+                You've used your free AI scan for this week.<br>
+                Your next free scan unlocks in a few days.
+            </div>
+            <div style='background: rgba(212,160,23,0.12); border: 1px solid #d4a017;
+                        border-radius: 10px; padding: 20px 24px; display: inline-block;'>
+                <div style='font-size: 18px; font-weight: 700; color: #d4a017; margin-bottom: 8px;'>
+                    🚀 Upgrade to GetPCFixed Pro
+                </div>
+                <div style='font-size: 15px; color: {t['output_text']};'>
+                    Unlimited AI scans &bull; Priority support &bull; $4.99/month
+                </div>
+                <div style='font-size: 13px; color: {t['sub_color']}; margin-top: 10px;'>
+                    Coming soon at getpcfixed.com
+                </div>
+            </div>
+        </div>
+        """
+
     def show_ask_result(self, text):
         self.last_diagnosis = text
-        self.output.setHtml(self._msg_html(text.replace("\n", "<br>")))
-        self.fix_btn.show()
-        self.status.setText("\u25cf  Done")
+        if "free AI scan for this week" in text or "Upgrade to GetPCFixed Pro" in text:
+            self.fix_btn.hide()
+            self.status.setText("\u25cf  Limit Reached")
+            self.output.setHtml(self._rate_limit_html())
+        else:
+            self.output.setHtml(self._msg_html(text.replace("\n", "<br>")))
+            self.fix_btn.show()
+            self.status.setText("\u25cf  Done")
 
     def run_fix(self):
         self.fix_btn.hide()
@@ -1325,6 +1364,12 @@ class MainWindow(QMainWindow):
 
     def show_result(self, text):
         self.clean_btn.hide()
+        if "free AI scan for this week" in text or "Upgrade to GetPCFixed Pro" in text:
+            self.repair_btn.hide()
+            self.clean_btn.hide()
+            self.status.setText("\u25cf  Limit Reached")
+            self.output.setHtml(self._rate_limit_html())
+            return
         if "Click Clean Now" in text:
             self.clean_btn.show()
         if self.repair_task:
