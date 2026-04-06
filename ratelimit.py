@@ -2,6 +2,7 @@ import os
 import json
 import sys
 from datetime import datetime, timedelta
+from stripe_check import is_paid
 
 # Store rate limit data in AppData alongside the log
 if getattr(sys, 'frozen', False):
@@ -34,12 +35,16 @@ def _save(data):
         pass
 
 
-def can_scan():
+def can_scan(email: str = ""):
     """
     Returns (allowed: bool, message: str)
     allowed = True  → user may proceed
     allowed = False → user has hit the free limit
     """
+    # Paid users always get through
+    if email and is_paid(email):
+        return True, ""
+
     data   = _load()
     now    = datetime.now()
     window = now - timedelta(days=FREE_WINDOW)
