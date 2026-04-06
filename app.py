@@ -24,6 +24,7 @@ from battery import run_battery_scan, fix_battery
 from monitor import start_monitor, stop_monitor, is_running, set_notify_callback
 from tray import start_tray, set_open_callback
 from autostart import is_autostart_enabled, enable_autostart
+from gamermode import launch_gamer_mode
 
 # Find .env whether running as .exe or as Python script
 if getattr(sys, 'frozen', False):
@@ -477,6 +478,7 @@ class MainWindow(QMainWindow):
         self.set_nav_active(btn)
         if   task == "dashboard": self.show_dashboard()
         elif task == "ask":       self.show_ask()
+        elif task == "gamer":     launch_gamer_mode()
         else:                     self.run_task(task)
 
     def set_nav_active(self, btn):
@@ -617,6 +619,9 @@ class MainWindow(QMainWindow):
         nav_l.addWidget(self._make_nav("   \U0001f504   Windows Updates",    "updates"))
         nav_l.addWidget(self._make_nav("   \U0001f4be   Disk Health",         "diskhealth"))
         nav_l.addWidget(self._make_nav("   \U0001f50c   Devices & USB",       "devices"))
+
+        nav_l.addWidget(self._section("GAMING"))
+        nav_l.addWidget(self._make_nav("   ⚡   Gamer Mode",           "gamer"))
 
         nav_l.addWidget(self._section("PROBLEMS"))
         nav_l.addWidget(self._make_nav("   \U0001f4a5   Blue Screen (BSOD)", "bsod"))
