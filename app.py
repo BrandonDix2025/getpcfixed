@@ -27,6 +27,7 @@ from autostart import is_autostart_enabled, enable_autostart
 from gamermode import launch_gamer_mode
 from updater import check_for_update, set_update_callback, download_and_run
 from stripe_check import get_subscription_tier
+from cache import get_cached, store_cache
 
 # Find .env whether running as .exe or as Python script
 if getattr(sys, 'frozen', False):
@@ -182,6 +183,13 @@ class AskWorkerThread(QThread):
                 return
 
             data = scan_system_data()
+
+            # ── Check cache first ─────────────────────────────────────────────────────
+            cached = get_cached(data, self.user_question)
+            if cached:
+                log_event("Ask GetPCFixed", f"Cache hit for: {self.user_question[:60]}")
+                self.result.emit(cached + "\n\n*(from recent scan — results are up to date)*")
+                return
             prompt = f"""
 You are GetPCFixed — a friendly, plain-English PC repair expert.
 
@@ -211,6 +219,7 @@ Keep it friendly, simple, and short. No technical jargon. Talk like a helpful ne
                 messages=[{"role": "user", "content": prompt}]
             )
             result = response.content[0].text
+            store_cache(data, result, self.user_question)
             record_scan()
             log_event("Ask GetPCFixed", f"User asked: {self.user_question[:60]}")
             self.result.emit(result)

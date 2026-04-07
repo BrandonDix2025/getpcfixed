@@ -4,6 +4,7 @@ import anthropic
 from scanner import scan_system_data
 from logger import log_event
 from ratelimit import can_scan, record_scan
+from cache import get_cached, store_cache
 
 if getattr(sys, 'frozen', False):
     BASE_DIR = sys._MEIPASS
@@ -16,6 +17,14 @@ def diagnose():
         return msg
 
     data = scan_system_data()
+
+    # ── Check cache first ──────────────────────────────────────────────────────
+    cached = get_cached(data)
+    if cached:
+        log_event("AI Diagnosis", f"Served from cache for {data['machine']}")
+        return cached + "\n\n*(from recent scan — results are up to date)*"
+
+    # ── No cache hit — call Claude ─────────────────────────────────────────────
     message = f"""
     You are a PC repair expert. Analyze this Windows PC health data and give a plain English diagnosis.
     Tell the user if anything looks wrong and what might be causing it.
@@ -37,9 +46,11 @@ def diagnose():
     )
 
     result = response.content[0].text
+    store_cache(data, result)
     record_scan()
-    log_event("AI Diagnosis", f"Diagnosis run on {data['machine']}")
+    log_event("AI Diagnosis", f"Fresh diagnosis run on {data['machine']}")
     return result
+
 
 def diagnose_print():
     print("=== GetPCFixed - AI Diagnosis ===")
