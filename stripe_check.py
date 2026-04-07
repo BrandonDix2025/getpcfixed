@@ -5,8 +5,9 @@ import stripe
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY", "")
 
 # Tier names must match your Stripe product names exactly
-PRO_PRODUCT_NAME   = "GetPCFixed Pro"
-GAMER_PRODUCT_NAME = "GetPCFixed Gamer"
+PRO_PRODUCT_NAME    = "GetPCFixed Pro"
+GAMER_PRODUCT_NAME  = "GetPCFixed Gamer"
+FAMILY_PRODUCT_NAME = "GetPCFixed Family"
 
 
 def get_subscription_tier(email: str) -> str:
@@ -49,6 +50,8 @@ def get_subscription_tier(email: str) -> str:
                     return "gamer"
                 if product_name == PRO_PRODUCT_NAME:
                     return "pro"
+                if product_name == FAMILY_PRODUCT_NAME:
+                    return "family"
 
         return "free"
 
@@ -62,4 +65,4 @@ def get_subscription_tier(email: str) -> str:
 
 def is_paid(email: str) -> bool:
     """Returns True if user has any active paid subscription."""
-    return get_subscription_tier(email) in ("pro", "gamer")
+    return get_subscription_tier(email) in ("pro", "gamer", "family")

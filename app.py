@@ -26,6 +26,7 @@ from tray import start_tray, set_open_callback
 from autostart import is_autostart_enabled, enable_autostart
 from gamermode import launch_gamer_mode
 from updater import check_for_update, set_update_callback, download_and_run
+from stripe_check import get_subscription_tier
 
 # Find .env whether running as .exe or as Python script
 if getattr(sys, 'frozen', False):
@@ -369,7 +370,9 @@ class MainWindow(QMainWindow):
         self.active_nav_btn  = None
         self.nav_buttons     = []
         self.repair_task     = None
-        self._page           = 'dashboard'  # track page for theme refresh
+        self._page           = 'dashboard'
+        self._user_email     = ""
+        self._user_tier      = "free"
 
         self.setStyleSheet(self._global_css())
         self.build_ui()
@@ -510,6 +513,7 @@ class MainWindow(QMainWindow):
         if   task == "dashboard": self.show_dashboard()
         elif task == "ask":       self.show_ask()
         elif task == "gamer":     launch_gamer_mode()
+        elif task == "signin":    self.show_signin()
         else:                     self.run_task(task)
 
     def set_nav_active(self, btn):
@@ -662,6 +666,8 @@ class MainWindow(QMainWindow):
         nav_l.addWidget(self._section("MORE"))
         nav_l.addWidget(self._make_nav("   \U0001f4cb   History",             "history"))
         nav_l.addWidget(self._make_nav("   \u2139\ufe0f   About",              "about"))
+        self.signin_nav_btn = self._make_nav("   \U0001f464   Sign In / My Plan",  "signin")
+        nav_l.addWidget(self.signin_nav_btn)
         nav_l.addStretch()
 
         nav_scroll.setWidget(nav_w)
@@ -1778,6 +1784,134 @@ class MainWindow(QMainWindow):
                         font-family: 'Segoe UI';
                     }
                 """)
+
+    def show_signin(self):
+        self._page = 'signin'
+        self.title.setText("Sign In / My Plan")
+        self.clean_btn.hide()
+        self.fix_btn.hide()
+        self.repair_btn.hide()
+        self.ask_input.hide()
+        self.ask_hint.hide()
+        self.ask_now_btn.hide()
+        self.startup_scroll.hide()
+        self.history_scroll.hide()
+        self.output.show()
+
+        TIER_LABELS = {
+            "free":   ("Free",   "#808080"),
+            "pro":    ("Pro",    "#0078d4"),
+            "gamer":  ("Gamer",  "#97C459"),
+            "family": ("Family", "#0ea368"),
+        }
+        tier_name, tier_color = TIER_LABELS.get(self._user_tier, ("Free", "#808080"))
+        signed_in = bool(self._user_email)
+
+        if signed_in:
+            status_html = f"""
+            <div style='background:rgba(14,163,104,0.12); border:1px solid rgba(14,163,104,0.3);
+                        border-radius:10px; padding:20px 24px; margin-bottom:20px;'>
+                <div style='font-size:12px; color:#505050; letter-spacing:1px;
+                            margin-bottom:6px;'>SIGNED IN AS</div>
+                <div style='font-size:16px; font-weight:600; color:#f3f3f3;
+                            margin-bottom:10px;'>{self._user_email}</div>
+                <div style='display:inline-block; background:{tier_color}; color:#ffffff;
+                            font-size:12px; font-weight:600; padding:4px 14px;
+                            border-radius:20px;'>{tier_name} Plan</div>
+            </div>"""
+        else:
+            status_html = """
+            <div style='background:rgba(255,255,255,0.04); border:1px solid #2e2e2e;
+                        border-radius:10px; padding:20px 24px; margin-bottom:20px;
+                        color:#808080; font-size:13px;'>
+                Not signed in &mdash; using free tier.
+            </div>"""
+
+        html = f"""
+        <div style='font-family: Segoe UI, Arial, sans-serif; padding: 4px 2px;'>
+            {status_html}
+            <div style='background:#1e1e1e; border:1px solid #2a2a2a;
+                        border-radius:10px; padding:24px 28px;'>
+                <div style='font-size:13px; color:#808080; margin-bottom:16px;'>
+                    {'Already a paid member? Re-enter your email to refresh your plan status.' if signed_in else
+                     'Enter your email to unlock your plan. This must match the email you used on getpcfixed.com.'}
+                </div>
+                <input id='emailInput' type='text'
+                    style='width:100%; background:#141414; color:#f3f3f3;
+                           border:1px solid #3a3a3a; border-radius:6px;
+                           padding:10px 14px; font-size:13px;
+                           font-family:Segoe UI; box-sizing:border-box;'
+                    placeholder='your@email.com' />
+            </div>
+        </div>
+        """
+        self.output.setHtml(html)
+
+        # Show the Activate button
+        self.fix_btn.setText("\u2713  Activate My Plan")
+        self.fix_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #0078d4;
+                color: white; border: none; border-radius: 6px;
+                padding: 0px 20px; font-size: 13px; font-weight: 600;
+                font-family: 'Segoe UI';
+            }
+            QPushButton:hover { background-color: #1a8fe8; }
+        """)
+        self.fix_btn.disconnect()
+        self.fix_btn.clicked.connect(self._activate_plan)
+        self.fix_btn.show()
+        self.status.setText("\u25cf  Enter your email to unlock your plan")
+
+    def _activate_plan(self):
+        # Pull email from the HTML input field via QTextEdit's toPlainText fallback
+        # We use a QInputDialog since QTextEdit can't interact with HTML inputs
+        from PyQt5.QtWidgets import QInputDialog
+        email, ok = QInputDialog.getText(
+            self, "Sign In",
+            "Enter the email address you used when you purchased GetPCFixed:",
+        )
+        if not ok or not email.strip():
+            return
+
+        email = email.strip().lower()
+        self.fix_btn.setText("Checking...")
+        self.fix_btn.setDisabled(True)
+        self.status.setText("\u25cf  Checking your subscription...")
+
+        tier = get_subscription_tier(email)
+        self._user_email = email
+        self._user_tier  = tier
+
+        TIER_LABELS = {
+            "free":   "Free",
+            "pro":    "Pro",
+            "gamer":  "Gamer",
+            "family": "Family",
+        }
+
+        if tier == "free":
+            self.status.setText("\u25cf  No active subscription found for that email")
+            self.output.setHtml(self._msg_html(
+                "We couldn't find an active subscription for <b>" + email + "</b>.<br><br>"
+                "If you just purchased, wait a minute and try again.<br>"
+                "Or visit <a href='https://getpcfixed.com' style='color:#0078d4;'>getpcfixed.com</a> "
+                "to get a plan."
+            ))
+        else:
+            label = TIER_LABELS[tier]
+            self.status.setText(f"\u25cf  {label} plan activated!")
+            log_event("Sign In", f"Activated {label} plan for {email}")
+            self.output.setHtml(self._msg_html(
+                f"<b style='color:#0ea368;'>\u2713 {label} plan activated!</b><br><br>"
+                f"Welcome back. You're signed in as <b>{email}</b>.<br>"
+                "Unlimited scans and all features are now unlocked."
+            ))
+            # Update signin nav button to reflect tier
+            self.signin_nav_btn.setText(f"   \U0001f464   {label} Plan")
+
+        self.fix_btn.setText("\u2713  Activate My Plan")
+        self.fix_btn.setDisabled(False)
 
     def show_about(self):
         self.title.setText("About GetPCFixed")
