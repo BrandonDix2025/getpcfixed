@@ -651,6 +651,43 @@
     .waitlist-success p { font-size: 14px; color: #EAF3DE; margin: 0; }
     .waitlist-success strong { color: #97C459; }
 
+    /* ── COMING SOON TEASER BAND ── */
+    .teaser-band {
+      background: var(--green-dark);
+      border-bottom: 1px solid #2a4a0a;
+      padding: 36px 40px;
+      text-align: center;
+    }
+    .teaser-band-inner { max-width: 680px; margin: 0 auto; }
+    .teaser-pill {
+      display: inline-block;
+      background: #97C459;
+      color: #173404;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 14px;
+      border-radius: 20px;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      animation: pulse 2s infinite;
+    }
+    .teaser-headline {
+      font-family: 'DM Serif Display', serif;
+      font-size: 24px;
+      font-weight: 400;
+      color: #EAF3DE;
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+    .teaser-sub {
+      font-size: 14px;
+      color: #97C459;
+      line-height: 1.7;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
     /* ── FOOTER ── */
     footer {
       background: var(--white);
@@ -818,6 +855,15 @@
         <div class="feat-desc">Something running that shouldn't be? We flag it, explain it, and help you decide what to do — no panic, just clarity.</div>
       </div>
     </div>
+    </div>
+  </section>
+
+  <!-- COMING SOON TEASER -->
+  <section class="teaser-band">
+    <div class="teaser-band-inner">
+      <div class="teaser-pill">&#x26A1; Coming in a couple days</div>
+      <div class="teaser-headline">We're testing something new &mdash; bringing old devices back to life.</div>
+      <p class="teaser-sub">Got a printer, scanner, or device that Windows 11 killed? We're working on a feature that finds the right driver and gets it working again &mdash; automatically, no forum-diving required. Stay tuned.</p>
     </div>
   </section>
 
