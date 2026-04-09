@@ -651,15 +651,94 @@
     .waitlist-success p { font-size: 14px; color: #EAF3DE; margin: 0; }
     .waitlist-success strong { color: #97C459; }
 
-    /* ── COMING SOON TEASER BAND ── */
-    .teaser-band {
-      background: var(--green-dark);
-      border-bottom: 1px solid #2a4a0a;
-      padding: 36px 40px;
+    /* ── HARDWARE RESURRECTION SECTION ── */
+    .resurrection { background: var(--white); }
+
+    .resurrection-intro {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      border-radius: 14px;
+      padding: 20px 24px;
+      margin-bottom: 36px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      max-width: 760px;
+    }
+    .resurrection-intro-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--warn-dot);
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+    .resurrection-intro-text { font-size: 14px; color: var(--warn-text); line-height: 1.7; }
+    .resurrection-intro-text strong { font-weight: 500; }
+
+    .resurrection-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: start;
+      max-width: 900px;
+    }
+    @media (max-width: 700px) { .resurrection-grid { grid-template-columns: 1fr; } }
+
+    .resurrection-device-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .resurrection-device {
+      background: var(--mint-light);
+      border: 1px solid var(--mint-border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+    .resurrection-device-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+      width: 36px;
       text-align: center;
     }
-    .teaser-band-inner { max-width: 680px; margin: 0 auto; }
-    .teaser-pill {
+    .resurrection-device-name { font-size: 14px; font-weight: 500; color: var(--green-deep); margin-bottom: 2px; }
+    .resurrection-device-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+    .resurrection-how {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .resurrection-step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--mint-bg);
+    }
+    .resurrection-step:last-child { border-bottom: none; }
+    .resurrection-step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--green-main);
+      color: #EAF3DE;
+      font-size: 12px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .resurrection-step-title { font-size: 14px; font-weight: 500; color: var(--green-dark); margin-bottom: 3px; }
+    .resurrection-step-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+    .resurrection-badge {
       display: inline-block;
       background: #97C459;
       color: #173404;
@@ -669,24 +748,18 @@
       border-radius: 20px;
       letter-spacing: 1.2px;
       text-transform: uppercase;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
       animation: pulse 2s infinite;
     }
-    .teaser-headline {
-      font-family: 'DM Serif Display', serif;
-      font-size: 24px;
-      font-weight: 400;
-      color: #EAF3DE;
-      margin-bottom: 10px;
-      line-height: 1.3;
+    .resurrection-coming {
+      margin-top: 28px;
+      background: var(--mint-light);
+      border: 1px solid var(--mint-border);
+      border-radius: 12px;
+      padding: 20px 24px;
     }
-    .teaser-sub {
-      font-size: 14px;
-      color: #97C459;
-      line-height: 1.7;
-      max-width: 500px;
-      margin: 0 auto;
-    }
+    .resurrection-coming-title { font-size: 14px; font-weight: 500; color: var(--green-deep); margin-bottom: 6px; }
+    .resurrection-coming-text { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
 
     /* ── FOOTER ── */
     footer {
@@ -858,12 +931,72 @@
     </div>
   </section>
 
-  <!-- COMING SOON TEASER -->
-  <section class="teaser-band">
-    <div class="teaser-band-inner">
-      <div class="teaser-pill">&#x26A1; Coming in a couple days</div>
-      <div class="teaser-headline">We're testing something new &mdash; bringing old devices back to life.</div>
-      <p class="teaser-sub">Got a printer, scanner, or device that Windows 11 killed? We're working on a feature that finds the right driver and gets it working again &mdash; automatically, no forum-diving required. Stay tuned.</p>
+  <!-- HARDWARE RESURRECTION -->
+  <section class="resurrection" id="resurrection">
+    <div class="section-inner">
+      <div class="resurrection-badge">&#x26A1; Coming very soon</div>
+      <div class="section-label">New feature</div>
+      <div class="section-title">Your devices didn't break.<br>Windows broke them.</div>
+      <p class="section-sub">A Windows update quietly killed your printer. Your scanner stopped working overnight. Your webcam disappeared after upgrading to Windows 11. The hardware is fine &mdash; it's the driver that's gone. GetPCFixed finds it and brings everything back.</p>
+
+      <div class="resurrection-intro">
+        <div class="resurrection-intro-dot"></div>
+        <div class="resurrection-intro-text"><strong>What's happening right now:</strong> Microsoft ended automatic driver updates for older printers and devices in January 2026. Millions of perfectly good devices stopped working after routine Windows updates &mdash; and Microsoft's answer is &ldquo;contact your manufacturer.&rdquo; Most manufacturers say &ldquo;buy a new one.&rdquo; We have a better answer.</div>
+      </div>
+
+      <div class="resurrection-grid">
+        <div>
+          <p class="section-label" style="margin-bottom:16px;">Devices we bring back</p>
+          <div class="resurrection-device-list">
+            <div class="resurrection-device">
+              <div class="resurrection-device-icon">&#x1F5A8;&#xFE0F;</div>
+              <div><div class="resurrection-device-name">Printers</div><div class="resurrection-device-desc">Canon, HP, Epson, Brother &mdash; if the hardware works, we find the driver that makes Windows agree.</div></div>
+            </div>
+            <div class="resurrection-device">
+              <div class="resurrection-device-icon">&#x1F4F7;</div>
+              <div><div class="resurrection-device-name">Scanners</div><div class="resurrection-device-desc">Windows 11 24H2 broke Canon scan utilities for hundreds of thousands of users. We fix that silently.</div></div>
+            </div>
+            <div class="resurrection-device">
+              <div class="resurrection-device-icon">&#x1F4F9;</div>
+              <div><div class="resurrection-device-name">Webcams &amp; cameras</div><div class="resurrection-device-desc">Older webcams that disappeared after a Windows update. We detect the hardware ID and find a working driver.</div></div>
+            </div>
+            <div class="resurrection-device">
+              <div class="resurrection-device-icon">&#x1F3AE;</div>
+              <div><div class="resurrection-device-name">Drawing tablets &amp; controllers</div><div class="resurrection-device-desc">Peripherals that Windows 11 quietly stopped supporting. We check Microsoft&rsquo;s full driver catalog &mdash; not just the obvious ones.</div></div>
+            </div>
+            <div class="resurrection-device">
+              <div class="resurrection-device-icon">&#x1F50C;</div>
+              <div><div class="resurrection-device-name">USB devices &amp; adapters</div><div class="resurrection-device-desc">Sound cards, USB hubs, older networking adapters &mdash; if it has a hardware ID, we can try to match it.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <p class="section-label" style="margin-bottom:16px;">How it works</p>
+          <div class="resurrection-how">
+            <div class="resurrection-step">
+              <div class="resurrection-step-num">1</div>
+              <div><div class="resurrection-step-title">We find the broken device</div><div class="resurrection-step-desc">GetPCFixed scans for every device flagged with an error. We show you exactly what&rsquo;s failing and why &mdash; in plain English, not error codes.</div></div>
+            </div>
+            <div class="resurrection-step">
+              <div class="resurrection-step-num">2</div>
+              <div><div class="resurrection-step-title">We search for the right driver</div><div class="resurrection-step-desc">We pull the hardware ID and search Microsoft&rsquo;s full driver catalog &mdash; 20+ years of drivers, still accessible, just not automatic anymore.</div></div>
+            </div>
+            <div class="resurrection-step">
+              <div class="resurrection-step-num">3</div>
+              <div><div class="resurrection-step-title">You say go</div><div class="resurrection-step-desc">We never install anything without your permission. One click. We show you exactly what we&rsquo;re doing before we touch a thing.</div></div>
+            </div>
+            <div class="resurrection-step">
+              <div class="resurrection-step-num">4</div>
+              <div><div class="resurrection-step-title">Your device works again</div><div class="resurrection-step-desc">Driver installed silently via Windows&rsquo; built-in tools. A plain-English receipt logs every change. One-click undo if you ever need it.</div></div>
+            </div>
+          </div>
+          <div class="resurrection-coming">
+            <div class="resurrection-coming-title">&#x1F527; Currently in testing &mdash; available very soon</div>
+            <div class="resurrection-coming-text">Hardware Resurrection is being tested now and will be available as part of the GetPCFixed Pro plan. Download the free version today and you&rsquo;ll get it automatically when it&rsquo;s ready.</div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
